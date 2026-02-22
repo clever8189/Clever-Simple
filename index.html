@@ -112,7 +112,7 @@
     </div>
     <div class="post-actions">
       <label class="upload-btn">
-        📷 Фото
+         Фото
         <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(this)">
       </label>
       <div class="spacer"></div>
@@ -134,7 +134,7 @@
 </div>
 
 <script>
-const SITE_PASSWORD = 'друзья2024';
+const SITE_PASSWORD = '1111';
 const BIN_ID = '699b648443b1c97be99478fb';
 const API_KEY = '$2a$10$s4ksLJKYh63TNKFzugR2qeYv9uGvAQ5mPeVYLKx7kwtYNr2pI0iBe';
 const CLOUD_NAME = 'dcat5kxgx';
@@ -321,7 +321,7 @@ function renderFeed() {
     .filter(el => el.style.display === 'block')
     .map(el => el.id.replace('comments-', '')));
 
-  if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов 🙂</div>'; return; }
+  if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов</div>'; return; }
 
   feed.innerHTML = [...posts].sort((a,b)=>b.ts-a.ts).map(p => {
     const liked = (p.likedBy||[]).includes(currentUser);
