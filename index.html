@@ -59,7 +59,6 @@
   .post-media { margin-bottom: 10px; }
   .post-media img { width: 100%; display: block; max-height: 380px; object-fit: cover; border-radius: 8px; cursor: pointer; }
   .post-media iframe { width: 100%; height: 280px; border: none; border-radius: 8px; }
-  .post-media a { display: inline-flex; align-items: center; gap: 5px; color: #444; font-size: 13px; text-decoration: none; padding: 6px 10px; background: #f5f5f5; border-radius: 7px; }
   .post-footer { display: flex; align-items: center; gap: 10px; }
   .like-btn, .comment-toggle { display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; font-size: 13px; color: #aaa; padding: 3px 7px; border-radius: 7px; }
   .like-btn:hover, .comment-toggle:hover { background: #f5f5f5; color: #666; }
@@ -135,7 +134,7 @@
 </div>
 
 <script>
-const SITE_PASSWORD = '1111';
+const SITE_PASSWORD = 'друзья2024';
 const BIN_ID = '699b648443b1c97be99478fb';
 const API_KEY = '$2a$10$s4ksLJKYh63TNKFzugR2qeYv9uGvAQ5mPeVYLKx7kwtYNr2pI0iBe';
 const CLOUD_NAME = 'dcat5kxgx';
@@ -143,6 +142,7 @@ const UPLOAD_PRESET = 'ml_default1111';
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 let currentUser = null, posts = [], pollInterval = null, uploadedUrl = null;
+let isSaving = false; // блокировка параллельных запросов
 
 const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e'];
 function avatarColor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
@@ -158,7 +158,7 @@ function login() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('userBadge').textContent = name;
   loadPosts();
-  pollInterval = setInterval(loadPosts, 10000);
+  pollInterval = setInterval(loadPosts, 12000);
 }
 
 function logout() {
@@ -169,17 +169,37 @@ function logout() {
 }
 
 async function fetchData() {
-  const r = await fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+  const r = await fetch(API_URL + '/latest', {
+    headers: { 'X-Master-Key': API_KEY }
+  });
+  if (!r.ok) throw new Error('fetch failed');
   const j = await r.json();
-  return j.record || { posts: [] };
+  return j.record && Array.isArray(j.record.posts) ? j.record : { posts: [] };
 }
 
 async function saveData(data) {
-  await fetch(API_URL, {
+  const r = await fetch(API_URL, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
     body: JSON.stringify(data)
   });
+  if (!r.ok) throw new Error('save failed');
+}
+
+// Атомарное обновление — читаем свежие данные, изменяем, сохраняем
+async function atomicUpdate(updateFn) {
+  if (isSaving) return;
+  isSaving = true;
+  try {
+    const data = await fetchData();
+    updateFn(data);
+    await saveData(data);
+    posts = data.posts;
+    renderFeed();
+  } catch(e) {
+    alert('Ошибка сохранения, попробуй ещё раз');
+  }
+  isSaving = false;
 }
 
 async function loadPosts() {
@@ -205,11 +225,12 @@ async function uploadFile(input) {
     fd.append('upload_preset', UPLOAD_PRESET);
     const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
     const j = await r.json();
+    if (!j.secure_url) throw new Error('no url');
     uploadedUrl = j.secure_url;
     document.getElementById('previewImg').src = uploadedUrl;
     document.getElementById('mediaPreview').style.display = 'block';
   } catch(e) {
-    alert('Ошибка загрузки фото');
+    alert('Ошибка загрузки фото, попробуй ещё раз');
   }
   bar.style.display = 'none';
   btn.disabled = false;
@@ -227,17 +248,49 @@ async function createPost() {
   if (!text && !uploadedUrl) return;
   const btn = document.getElementById('postBtn');
   btn.disabled = true;
-  try {
-    const data = await fetchData();
-    const post = { id: Date.now().toString(), author: currentUser, text, media: uploadedUrl || '', ts: Date.now(), likedBy: [], comments: [] };
-    data.posts = [post, ...(data.posts || [])];
-    await saveData(data);
-    document.getElementById('postText').value = '';
-    removeMedia();
-    posts = data.posts;
-    renderFeed();
-  } catch(e) { alert('Ошибка публикации'); }
+  const newPost = {
+    id: Date.now().toString(),
+    author: currentUser,
+    text,
+    media: uploadedUrl || '',
+    ts: Date.now(),
+    likedBy: [],
+    comments: []
+  };
+  await atomicUpdate(data => {
+    data.posts = [newPost, ...(data.posts || [])];
+  });
+  document.getElementById('postText').value = '';
+  removeMedia();
   btn.disabled = false;
+}
+
+async function toggleLike(id) {
+  await atomicUpdate(data => {
+    const post = data.posts.find(p => p.id === id);
+    if (!post) return;
+    post.likedBy = post.likedBy || [];
+    const idx = post.likedBy.indexOf(currentUser);
+    if (idx === -1) post.likedBy.push(currentUser);
+    else post.likedBy.splice(idx, 1);
+  });
+}
+
+async function addComment(id) {
+  const input = document.getElementById('cinput-' + id);
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  await atomicUpdate(data => {
+    const post = data.posts.find(p => p.id === id);
+    if (!post) return;
+    post.comments = post.comments || [];
+    post.comments.push({ author: currentUser, text, ts: Date.now() });
+  });
+  setTimeout(() => {
+    const el = document.getElementById('comments-' + id);
+    if (el) el.style.display = 'block';
+  }, 50);
 }
 
 function timeAgo(ts) {
@@ -254,21 +307,26 @@ function esc(s) {
 
 function renderMedia(url) {
   if (!url) return '';
-  if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url) || url.includes('cloudinary')) {
-    return `<div class="post-media"><img src="${url}" loading="lazy" onclick="openLightbox('${url}')"></div>`;
+  if (/cloudinary|imgur|\.jpg|\.jpeg|\.png|\.gif|\.webp/i.test(url)) {
+    return `<div class="post-media"><img src="${esc(url)}" loading="lazy" onclick="openLightbox('${esc(url)}')"></div>`;
   }
   const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
   if (yt) return `<div class="post-media"><iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe></div>`;
-  return `<div class="post-media"><a href="${url}" target="_blank">📎 ${esc(url)}</a></div>`;
+  return `<div class="post-media"><a href="${esc(url)}" target="_blank">📎 ${esc(url)}</a></div>`;
 }
 
 function renderFeed() {
   const feed = document.getElementById('feed');
-  if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов</div>'; return; }
+  const openComments = new Set([...document.querySelectorAll('.comments-section')]
+    .filter(el => el.style.display === 'block')
+    .map(el => el.id.replace('comments-', '')));
+
+  if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов 🙂</div>'; return; }
+
   feed.innerHTML = [...posts].sort((a,b)=>b.ts-a.ts).map(p => {
     const liked = (p.likedBy||[]).includes(currentUser);
     const col = avatarColor(p.author);
-    const comments = (p.comments||[]).map(c=>`
+    const commentsHtml = (p.comments||[]).map(c=>`
       <div class="comment">
         <div class="avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
         <div class="comment-body">
@@ -276,6 +334,7 @@ function renderFeed() {
           <div class="comment-text">${esc(c.text)}</div>
         </div>
       </div>`).join('');
+    const commentsOpen = openComments.has(p.id) ? 'block' : 'none';
     return `
     <div class="post-card" id="post-${p.id}">
       <div class="post-header">
@@ -295,8 +354,8 @@ function renderFeed() {
           💬 ${(p.comments||[]).length||0}
         </button>
       </div>
-      <div class="comments-section" id="comments-${p.id}">
-        ${comments}
+      <div class="comments-section" id="comments-${p.id}" style="display:${commentsOpen}">
+        ${commentsHtml}
         <div class="comment-form">
           <input placeholder="Комментарий..." id="cinput-${p.id}" onkeydown="if(event.key==='Enter')addComment('${p.id}')">
           <button onclick="addComment('${p.id}')">→</button>
@@ -309,33 +368,6 @@ function renderFeed() {
 function toggleComments(id) {
   const el = document.getElementById('comments-'+id);
   el.style.display = el.style.display==='block' ? 'none' : 'block';
-}
-
-async function toggleLike(id) {
-  const data = await fetchData();
-  const post = data.posts.find(p=>p.id===id);
-  if (!post) return;
-  post.likedBy = post.likedBy||[];
-  const idx = post.likedBy.indexOf(currentUser);
-  if (idx===-1) post.likedBy.push(currentUser); else post.likedBy.splice(idx,1);
-  await saveData(data);
-  posts = data.posts;
-  renderFeed();
-}
-
-async function addComment(id) {
-  const input = document.getElementById('cinput-'+id);
-  const text = input.value.trim();
-  if (!text) return;
-  const data = await fetchData();
-  const post = data.posts.find(p=>p.id===id);
-  if (!post) return;
-  post.comments = post.comments||[];
-  post.comments.push({ author: currentUser, text, ts: Date.now() });
-  await saveData(data);
-  posts = data.posts;
-  renderFeed();
-  setTimeout(()=>{ const el=document.getElementById('comments-'+id); if(el) el.style.display='block'; },50);
 }
 
 function openLightbox(url) {
