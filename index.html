@@ -3,96 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClosedPurple</title>
+<title>ClosedCircle</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #222; }
 
   #auth { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #fff; }
-  .auth-box { width: 320px; text-align: center; }
-  .auth-box h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
-  .auth-box p { color: #888; font-size: 14px; margin-bottom: 28px; }
-  .auth-box input { width: 100%; padding: 12px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 15px; margin-bottom: 10px; outline: none; transition: border .2s; }
+  .auth-box { width: 300px; text-align: center; }
+  .auth-box h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .auth-box p { color: #aaa; font-size: 13px; margin-bottom: 24px; }
+  .auth-box input { width: 100%; padding: 10px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
   .auth-box input:focus { border-color: #222; }
-  .auth-box button { width: 100%; padding: 12px; background: #222; color: #fff; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
+  .auth-box button { width: 100%; padding: 10px; background: #222; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
   .auth-box button:hover { background: #444; }
-  .auth-error { color: #e00; font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .auth-error { color: #e00; font-size: 12px; margin-top: 6px; min-height: 16px; }
 
-  #app { display: none; max-width: 600px; margin: 0 auto; padding: 20px 12px 60px; }
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .header h1 { font-size: 22px; font-weight: 700; }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  .username-badge { font-size: 13px; background: #f0f0f0; padding: 5px 10px; border-radius: 20px; }
-  .logout-btn { font-size: 13px; color: #888; background: none; border: none; cursor: pointer; }
+  #app { display: none; max-width: 560px; margin: 0 auto; padding: 16px 12px 60px; }
+
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .header h1 { font-size: 18px; font-weight: 700; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .username-badge { font-size: 12px; background: #f0f0f0; padding: 4px 9px; border-radius: 20px; }
+  .logout-btn { font-size: 12px; color: #aaa; background: none; border: none; cursor: pointer; }
   .logout-btn:hover { color: #222; }
 
-  .create-post { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-  .create-post textarea { width: 100%; border: none; outline: none; font-size: 15px; resize: none; font-family: inherit; min-height: 60px; color: #222; }
-  .create-post textarea::placeholder { color: #aaa; }
+  .create-post { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .create-post textarea { width: 100%; border: none; outline: none; font-size: 14px; resize: none; font-family: inherit; min-height: 56px; color: #222; }
+  .create-post textarea::placeholder { color: #bbb; }
 
-  .media-preview { margin: 10px 0; position: relative; }
-  .media-preview img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; display: block; }
-  .remove-media { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.5); color: #fff; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .media-preview { margin: 8px 0; position: relative; }
+  .media-preview img { width: 100%; max-height: 260px; object-fit: cover; border-radius: 8px; display: block; }
+  .remove-media { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.45); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
 
-  .post-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .upload-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #f5f5f5; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; color: #444; white-space: nowrap; }
+  .post-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .upload-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: #f5f5f5; border: none; border-radius: 7px; font-size: 13px; cursor: pointer; color: #555; }
   .upload-btn:hover { background: #eee; }
   .upload-btn input { display: none; }
-  .media-input { flex: 1; min-width: 120px; padding: 8px 10px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; }
-  .media-input:focus { border-color: #222; }
-  .post-btn { padding: 8px 18px; background: #222; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  .spacer { flex: 1; }
+  .post-btn { padding: 6px 16px; background: #222; color: #fff; border: none; border-radius: 7px; font-size: 13px; cursor: pointer; }
   .post-btn:hover { background: #444; }
-  .post-btn:disabled { background: #aaa; cursor: not-allowed; }
+  .post-btn:disabled { background: #bbb; cursor: not-allowed; }
 
-  .uploading-bar { margin-top: 8px; font-size: 13px; color: #888; display: none; align-items: center; gap: 8px; }
-  .spinner { width: 14px; height: 14px; border: 2px solid #ddd; border-top-color: #222; border-radius: 50%; animation: spin .6s linear infinite; }
+  .uploading-bar { margin-top: 6px; font-size: 12px; color: #888; display: none; align-items: center; gap: 6px; }
+  .spinner { width: 12px; height: 12px; border: 2px solid #ddd; border-top-color: #222; border-radius: 50%; animation: spin .6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .feed { display: flex; flex-direction: column; gap: 14px; }
-  .post-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-  .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .avatar { width: 36px; height: 36px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  .feed { display: flex; flex-direction: column; gap: 10px; }
+  .post-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .post-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
   .post-meta { flex: 1; }
-  .post-author { font-weight: 600; font-size: 14px; }
-  .post-time { font-size: 12px; color: #aaa; }
-  .post-text { font-size: 15px; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; word-break: break-word; }
-  .post-media { margin-bottom: 12px; }
-  .post-media img { width: 100%; display: block; max-height: 400px; object-fit: cover; border-radius: 10px; cursor: pointer; }
-  .post-media iframe { width: 100%; height: 300px; border: none; border-radius: 10px; }
-  .post-media a { display: inline-flex; align-items: center; gap: 6px; color: #222; font-size: 14px; text-decoration: none; padding: 8px 12px; background: #f5f5f5; border-radius: 8px; }
-  .post-media a:hover { background: #eee; }
-  .post-footer { display: flex; align-items: center; gap: 14px; }
-  .like-btn { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-size: 14px; color: #888; padding: 4px 8px; border-radius: 8px; transition: background .15s; }
-  .like-btn:hover { background: #f5f5f5; }
+  .post-author { font-weight: 600; font-size: 13px; }
+  .post-time { font-size: 11px; color: #bbb; }
+  .post-text { font-size: 14px; line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
+  .post-media { margin-bottom: 10px; }
+  .post-media img { width: 100%; display: block; max-height: 380px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+  .post-media iframe { width: 100%; height: 280px; border: none; border-radius: 8px; }
+  .post-media a { display: inline-flex; align-items: center; gap: 5px; color: #444; font-size: 13px; text-decoration: none; padding: 6px 10px; background: #f5f5f5; border-radius: 7px; }
+  .post-footer { display: flex; align-items: center; gap: 10px; }
+  .like-btn, .comment-toggle { display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; font-size: 13px; color: #aaa; padding: 3px 7px; border-radius: 7px; }
+  .like-btn:hover, .comment-toggle:hover { background: #f5f5f5; color: #666; }
   .like-btn.liked { color: #e00; }
-  .comment-toggle { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-size: 14px; color: #888; padding: 4px 8px; border-radius: 8px; transition: background .15s; }
-  .comment-toggle:hover { background: #f5f5f5; }
 
-  .comments-section { margin-top: 12px; border-top: 1px solid #f0f0f0; padding-top: 12px; display: none; }
-  .comment { display: flex; gap: 8px; margin-bottom: 10px; }
-  .comment .avatar { width: 28px; height: 28px; font-size: 12px; }
-  .comment-body { flex: 1; }
-  .comment-author { font-weight: 600; font-size: 13px; }
-  .comment-text { font-size: 14px; color: #444; line-height: 1.4; }
-  .comment-form { display: flex; gap: 8px; margin-top: 8px; }
-  .comment-form input { flex: 1; padding: 8px 10px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; }
+  .comments-section { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; display: none; }
+  .comment { display: flex; gap: 7px; margin-bottom: 8px; }
+  .comment .avatar { width: 26px; height: 26px; font-size: 11px; }
+  .comment-author { font-weight: 600; font-size: 12px; }
+  .comment-text { font-size: 13px; color: #444; line-height: 1.4; }
+  .comment-form { display: flex; gap: 6px; margin-top: 6px; }
+  .comment-form input { flex: 1; padding: 7px 9px; border: 1.5px solid #e0e0e0; border-radius: 7px; font-size: 13px; outline: none; }
   .comment-form input:focus { border-color: #222; }
-  .comment-form button { padding: 8px 14px; background: #222; color: #fff; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
+  .comment-form button { padding: 7px 12px; background: #222; color: #fff; border: none; border-radius: 7px; font-size: 12px; cursor: pointer; }
 
-  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 1000; align-items: center; justify-content: center; }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 1000; align-items: center; justify-content: center; }
   .lightbox.active { display: flex; }
-  .lightbox img { max-width: 95vw; max-height: 95vh; border-radius: 8px; object-fit: contain; }
-  .lightbox-close { position: absolute; top: 16px; right: 20px; color: #fff; font-size: 32px; cursor: pointer; background: none; border: none; }
+  .lightbox img { max-width: 95vw; max-height: 95vh; border-radius: 6px; object-fit: contain; }
+  .lightbox-close { position: absolute; top: 14px; right: 18px; color: #fff; font-size: 28px; cursor: pointer; background: none; border: none; }
 
-  .loading { text-align: center; color: #aaa; padding: 30px; font-size: 14px; }
-  .empty { text-align: center; color: #bbb; padding: 40px; font-size: 15px; }
+  .loading, .empty { text-align: center; color: #bbb; padding: 30px; font-size: 14px; }
 </style>
 </head>
 <body>
 
 <div id="auth">
   <div class="auth-box">
-    <h1>ClosedPurple</h1>
+    <h1>ClosedCircle</h1>
+    <p></p>
     <input type="text" id="nameInput" placeholder="Твоё имя" maxlength="20">
     <input type="password" id="passInput" placeholder="Пароль">
     <button onclick="login()">Войти</button>
@@ -102,7 +98,7 @@
 
 <div id="app">
   <div class="header">
-    <h1>ClosedPurple</h1>
+    <h1>ClosedCircle</h1>
     <div class="header-right">
       <span class="username-badge" id="userBadge"></span>
       <button class="logout-btn" onclick="logout()">Выйти</button>
@@ -110,17 +106,17 @@
   </div>
 
   <div class="create-post">
-    <textarea id="postText" placeholder="Напиши текст или загрузите фото"></textarea>
+    <textarea id="postText" placeholder="Что нового?"></textarea>
     <div id="mediaPreview" class="media-preview" style="display:none">
       <img id="previewImg" src="">
       <button class="remove-media" onclick="removeMedia()">×</button>
     </div>
     <div class="post-actions">
       <label class="upload-btn">
-           Фото
+        📷 Фото
         <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(this)">
       </label>
-
+      <div class="spacer"></div>
       <button class="post-btn" id="postBtn" onclick="createPost()">Опубликовать</button>
     </div>
     <div class="uploading-bar" id="uploadingBar">
@@ -139,9 +135,9 @@
 </div>
 
 <script>
-const SITE_PASSWORD = 'друзья2024'; // ← СМЕНИ ПАРОЛЬ
+const SITE_PASSWORD = '1111';
 const BIN_ID = '699b648443b1c97be99478fb';
-const API_KEY = '$2a$10$s4ksLJKYh63TNKFzugR2qeYv9uGvAQ5mPeVYLKx7kwtYNr2pI0iBe'; // ← ВСТАВЬ API KEY из jsonbin.io
+const API_KEY = '$2a$10$s4ksLJKYh63TNKFzugR2qeYv9uGvAQ5mPeVYLKx7kwtYNr2pI0iBe';
 const CLOUD_NAME = 'dcat5kxgx';
 const UPLOAD_PRESET = 'ml_default1111';
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
@@ -157,7 +153,6 @@ function login() {
   const err = document.getElementById('authError');
   if (!name) { err.textContent = 'Введи своё имя'; return; }
   if (pass !== SITE_PASSWORD) { err.textContent = 'Неверный пароль'; return; }
-  if (!API_KEY) { err.textContent = 'Вставь API_KEY в код!'; return; }
   currentUser = name;
   document.getElementById('auth').style.display = 'none';
   document.getElementById('app').style.display = 'block';
@@ -193,7 +188,7 @@ async function loadPosts() {
     posts = data.posts || [];
     renderFeed();
   } catch(e) {
-    document.getElementById('feed').innerHTML = '<div class="empty">Ошибка загрузки. Проверь API_KEY.</div>';
+    document.getElementById('feed').innerHTML = '<div class="empty">Ошибка загрузки</div>';
   }
 }
 
@@ -202,60 +197,47 @@ async function uploadFile(input) {
   if (!file) return;
   const bar = document.getElementById('uploadingBar');
   const btn = document.getElementById('postBtn');
-  bar.style.display = 'flex'; btn.disabled = true;
-  uploadedUrl = null;
-  document.getElementById('mediaUrl').value = '';
-
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', UPLOAD_PRESET);
-
+  bar.style.display = 'flex';
+  btn.disabled = true;
   try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', UPLOAD_PRESET);
     const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
     const j = await r.json();
     uploadedUrl = j.secure_url;
     document.getElementById('previewImg').src = uploadedUrl;
     document.getElementById('mediaPreview').style.display = 'block';
   } catch(e) {
-    alert('Ошибка загрузки фото. Проверь настройки Cloudinary.');
+    alert('Ошибка загрузки фото');
   }
-  bar.style.display = 'none'; btn.disabled = false;
+  bar.style.display = 'none';
+  btn.disabled = false;
   input.value = '';
-}
-
-function onUrlInput() {
-  const url = document.getElementById('mediaUrl').value.trim();
-  if (/\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url)) {
-    document.getElementById('previewImg').src = url;
-    document.getElementById('mediaPreview').style.display = 'block';
-    uploadedUrl = url;
-  } else {
-    document.getElementById('mediaPreview').style.display = 'none';
-    uploadedUrl = null;
-  }
 }
 
 function removeMedia() {
   uploadedUrl = null;
-  document.getElementById('mediaUrl').value = '';
-  document.getElementById('mediaPreview').style.display = 'none';
   document.getElementById('previewImg').src = '';
+  document.getElementById('mediaPreview').style.display = 'none';
 }
 
-function detectMedia(url) {
-  if (!url) return null;
-  if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url)) return { type: 'image', url };
-  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-  if (yt) return { type: 'youtube', id: yt[1] };
-  return { type: 'link', url };
-}
-
-function renderMedia(url) {
-  const m = detectMedia(url);
-  if (!m) return '';
-  if (m.type === 'image') return `<div class="post-media"><img src="${m.url}" loading="lazy" onclick="openLightbox('${m.url}')" onerror="this.parentElement.style.display='none'"></div>`;
-  if (m.type === 'youtube') return `<div class="post-media"><iframe src="https://www.youtube.com/embed/${m.id}" allowfullscreen></iframe></div>`;
-  return `<div class="post-media"><a href="${m.url}" target="_blank">📎 ${esc(m.url)}</a></div>`;
+async function createPost() {
+  const text = document.getElementById('postText').value.trim();
+  if (!text && !uploadedUrl) return;
+  const btn = document.getElementById('postBtn');
+  btn.disabled = true;
+  try {
+    const data = await fetchData();
+    const post = { id: Date.now().toString(), author: currentUser, text, media: uploadedUrl || '', ts: Date.now(), likedBy: [], comments: [] };
+    data.posts = [post, ...(data.posts || [])];
+    await saveData(data);
+    document.getElementById('postText').value = '';
+    removeMedia();
+    posts = data.posts;
+    renderFeed();
+  } catch(e) { alert('Ошибка публикации'); }
+  btn.disabled = false;
 }
 
 function timeAgo(ts) {
@@ -270,14 +252,23 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function renderMedia(url) {
+  if (!url) return '';
+  if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url) || url.includes('cloudinary')) {
+    return `<div class="post-media"><img src="${url}" loading="lazy" onclick="openLightbox('${url}')"></div>`;
+  }
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  if (yt) return `<div class="post-media"><iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe></div>`;
+  return `<div class="post-media"><a href="${url}" target="_blank">📎 ${esc(url)}</a></div>`;
+}
+
 function renderFeed() {
   const feed = document.getElementById('feed');
   if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов</div>'; return; }
-  const sorted = [...posts].sort((a,b) => b.ts-a.ts);
-  feed.innerHTML = sorted.map(p => {
+  feed.innerHTML = [...posts].sort((a,b)=>b.ts-a.ts).map(p => {
     const liked = (p.likedBy||[]).includes(currentUser);
     const col = avatarColor(p.author);
-    const comments = (p.comments||[]).map(c => `
+    const comments = (p.comments||[]).map(c=>`
       <div class="comment">
         <div class="avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
         <div class="comment-body">
@@ -307,7 +298,7 @@ function renderFeed() {
       <div class="comments-section" id="comments-${p.id}">
         ${comments}
         <div class="comment-form">
-          <input placeholder="Написать комментарий..." id="cinput-${p.id}" onkeydown="if(event.key==='Enter')addComment('${p.id}')">
+          <input placeholder="Комментарий..." id="cinput-${p.id}" onkeydown="if(event.key==='Enter')addComment('${p.id}')">
           <button onclick="addComment('${p.id}')">→</button>
         </div>
       </div>
@@ -315,19 +306,9 @@ function renderFeed() {
   }).join('');
 }
 
-async function createPost() {
-  const text = document.getElementById('postText').value.trim();
-  const media = uploadedUrl || document.getElementById('mediaUrl').value.trim();
-  if (!text && !media) return;
-  document.getElementById('postBtn').disabled = true;
-  const data = await fetchData();
-  data.posts = [{ id: Date.now().toString(), author: currentUser, text, media, ts: Date.now(), likedBy: [], comments: [] }, ...(data.posts||[])];
-  await saveData(data);
-  document.getElementById('postText').value = '';
-  removeMedia();
-  posts = data.posts;
-  renderFeed();
-  document.getElementById('postBtn').disabled = false;
+function toggleComments(id) {
+  const el = document.getElementById('comments-'+id);
+  el.style.display = el.style.display==='block' ? 'none' : 'block';
 }
 
 async function toggleLike(id) {
@@ -355,11 +336,6 @@ async function addComment(id) {
   posts = data.posts;
   renderFeed();
   setTimeout(()=>{ const el=document.getElementById('comments-'+id); if(el) el.style.display='block'; },50);
-}
-
-function toggleComments(id) {
-  const el = document.getElementById('comments-'+id);
-  el.style.display = el.style.display==='block' ? 'none' : 'block';
 }
 
 function openLightbox(url) {
