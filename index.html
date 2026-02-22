@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClosedPurple</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #222; }
+
+  #auth { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #fff; }
+  .auth-box { width: 320px; text-align: center; }
+  .auth-box h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .auth-box p { color: #888; font-size: 14px; margin-bottom: 28px; }
+  .auth-box input { width: 100%; padding: 12px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 15px; margin-bottom: 10px; outline: none; transition: border .2s; }
+  .auth-box input:focus { border-color: #222; }
+  .auth-box button { width: 100%; padding: 12px; background: #222; color: #fff; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
+  .auth-box button:hover { background: #444; }
+  .auth-error { color: #e00; font-size: 13px; margin-top: 8px; min-height: 18px; }
+
+  #app { display: none; max-width: 600px; margin: 0 auto; padding: 20px 12px 60px; }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .username-badge { font-size: 13px; background: #f0f0f0; padding: 5px 10px; border-radius: 20px; }
+  .logout-btn { font-size: 13px; color: #888; background: none; border: none; cursor: pointer; }
+  .logout-btn:hover { color: #222; }
+
+  .create-post { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .create-post textarea { width: 100%; border: none; outline: none; font-size: 15px; resize: none; font-family: inherit; min-height: 60px; color: #222; }
+  .create-post textarea::placeholder { color: #aaa; }
+
+  .media-preview { margin: 10px 0; position: relative; }
+  .media-preview img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; display: block; }
+  .remove-media { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.5); color: #fff; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+
+  .post-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .upload-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #f5f5f5; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; color: #444; white-space: nowrap; }
+  .upload-btn:hover { background: #eee; }
+  .upload-btn input { display: none; }
+  .media-input { flex: 1; min-width: 120px; padding: 8px 10px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; }
+  .media-input:focus { border-color: #222; }
+  .post-btn { padding: 8px 18px; background: #222; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  .post-btn:hover { background: #444; }
+  .post-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+  .uploading-bar { margin-top: 8px; font-size: 13px; color: #888; display: none; align-items: center; gap: 8px; }
+  .spinner { width: 14px; height: 14px; border: 2px solid #ddd; border-top-color: #222; border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .feed { display: flex; flex-direction: column; gap: 14px; }
+  .post-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  .post-meta { flex: 1; }
+  .post-author { font-weight: 600; font-size: 14px; }
+  .post-time { font-size: 12px; color: #aaa; }
+  .post-text { font-size: 15px; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; word-break: break-word; }
+  .post-media { margin-bottom: 12px; }
+  .post-media img { width: 100%; display: block; max-height: 400px; object-fit: cover; border-radius: 10px; cursor: pointer; }
+  .post-media iframe { width: 100%; height: 300px; border: none; border-radius: 10px; }
+  .post-media a { display: inline-flex; align-items: center; gap: 6px; color: #222; font-size: 14px; text-decoration: none; padding: 8px 12px; background: #f5f5f5; border-radius: 8px; }
+  .post-media a:hover { background: #eee; }
+  .post-footer { display: flex; align-items: center; gap: 14px; }
+  .like-btn { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-size: 14px; color: #888; padding: 4px 8px; border-radius: 8px; transition: background .15s; }
+  .like-btn:hover { background: #f5f5f5; }
+  .like-btn.liked { color: #e00; }
+  .comment-toggle { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-size: 14px; color: #888; padding: 4px 8px; border-radius: 8px; transition: background .15s; }
+  .comment-toggle:hover { background: #f5f5f5; }
+
+  .comments-section { margin-top: 12px; border-top: 1px solid #f0f0f0; padding-top: 12px; display: none; }
+  .comment { display: flex; gap: 8px; margin-bottom: 10px; }
+  .comment .avatar { width: 28px; height: 28px; font-size: 12px; }
+  .comment-body { flex: 1; }
+  .comment-author { font-weight: 600; font-size: 13px; }
+  .comment-text { font-size: 14px; color: #444; line-height: 1.4; }
+  .comment-form { display: flex; gap: 8px; margin-top: 8px; }
+  .comment-form input { flex: 1; padding: 8px 10px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; }
+  .comment-form input:focus { border-color: #222; }
+  .comment-form button { padding: 8px 14px; background: #222; color: #fff; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
+
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 1000; align-items: center; justify-content: center; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 95vw; max-height: 95vh; border-radius: 8px; object-fit: contain; }
+  .lightbox-close { position: absolute; top: 16px; right: 20px; color: #fff; font-size: 32px; cursor: pointer; background: none; border: none; }
+
+  .loading { text-align: center; color: #aaa; padding: 30px; font-size: 14px; }
+  .empty { text-align: center; color: #bbb; padding: 40px; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div id="auth">
+  <div class="auth-box">
+    <h1>ClosedPurple</h1>
+    <input type="text" id="nameInput" placeholder="Твоё имя" maxlength="20">
+    <input type="password" id="passInput" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <h1>ClosedPurple</h1>
+    <div class="header-right">
+      <span class="username-badge" id="userBadge"></span>
+      <button class="logout-btn" onclick="logout()">Выйти</button>
+    </div>
+  </div>
+
+  <div class="create-post">
+    <textarea id="postText" placeholder="Напиши текст или загрузите фото"></textarea>
+    <div id="mediaPreview" class="media-preview" style="display:none">
+      <img id="previewImg" src="">
+      <button class="remove-media" onclick="removeMedia()">×</button>
+    </div>
+    <div class="post-actions">
+      <label class="upload-btn">
+           Фото
+        <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(this)">
+      </label>
+
+      <button class="post-btn" id="postBtn" onclick="createPost()">Опубликовать</button>
+    </div>
+    <div class="uploading-bar" id="uploadingBar">
+      <div class="spinner"></div> Загружаем фото...
+    </div>
+  </div>
+
+  <div class="feed" id="feed">
+    <div class="loading">Загружаем посты...</div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close">×</button>
+  <img id="lightboxImg" src="">
+</div>
+
+<script>
+const SITE_PASSWORD = 'друзья2024'; // ← СМЕНИ ПАРОЛЬ
+const BIN_ID = '699b648443b1c97be99478fb';
+const API_KEY = '$2a$10$s4ksLJKYh63TNKFzugR2qeYv9uGvAQ5mPeVYLKx7kwtYNr2pI0iBe'; // ← ВСТАВЬ API KEY из jsonbin.io
+const CLOUD_NAME = 'dcat5kxgx';
+const UPLOAD_PRESET = 'ml_default1111';
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+let currentUser = null, posts = [], pollInterval = null, uploadedUrl = null;
+
+const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e'];
+function avatarColor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
+
+function login() {
+  const name = document.getElementById('nameInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  const err = document.getElementById('authError');
+  if (!name) { err.textContent = 'Введи своё имя'; return; }
+  if (pass !== SITE_PASSWORD) { err.textContent = 'Неверный пароль'; return; }
+  if (!API_KEY) { err.textContent = 'Вставь API_KEY в код!'; return; }
+  currentUser = name;
+  document.getElementById('auth').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('userBadge').textContent = name;
+  loadPosts();
+  pollInterval = setInterval(loadPosts, 10000);
+}
+
+function logout() {
+  currentUser = null; clearInterval(pollInterval);
+  document.getElementById('auth').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('passInput').value = '';
+}
+
+async function fetchData() {
+  const r = await fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+  const j = await r.json();
+  return j.record || { posts: [] };
+}
+
+async function saveData(data) {
+  await fetch(API_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+    body: JSON.stringify(data)
+  });
+}
+
+async function loadPosts() {
+  try {
+    const data = await fetchData();
+    posts = data.posts || [];
+    renderFeed();
+  } catch(e) {
+    document.getElementById('feed').innerHTML = '<div class="empty">Ошибка загрузки. Проверь API_KEY.</div>';
+  }
+}
+
+async function uploadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const bar = document.getElementById('uploadingBar');
+  const btn = document.getElementById('postBtn');
+  bar.style.display = 'flex'; btn.disabled = true;
+  uploadedUrl = null;
+  document.getElementById('mediaUrl').value = '';
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', UPLOAD_PRESET);
+
+  try {
+    const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+    const j = await r.json();
+    uploadedUrl = j.secure_url;
+    document.getElementById('previewImg').src = uploadedUrl;
+    document.getElementById('mediaPreview').style.display = 'block';
+  } catch(e) {
+    alert('Ошибка загрузки фото. Проверь настройки Cloudinary.');
+  }
+  bar.style.display = 'none'; btn.disabled = false;
+  input.value = '';
+}
+
+function onUrlInput() {
+  const url = document.getElementById('mediaUrl').value.trim();
+  if (/\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url)) {
+    document.getElementById('previewImg').src = url;
+    document.getElementById('mediaPreview').style.display = 'block';
+    uploadedUrl = url;
+  } else {
+    document.getElementById('mediaPreview').style.display = 'none';
+    uploadedUrl = null;
+  }
+}
+
+function removeMedia() {
+  uploadedUrl = null;
+  document.getElementById('mediaUrl').value = '';
+  document.getElementById('mediaPreview').style.display = 'none';
+  document.getElementById('previewImg').src = '';
+}
+
+function detectMedia(url) {
+  if (!url) return null;
+  if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?|$)/i.test(url)) return { type: 'image', url };
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  if (yt) return { type: 'youtube', id: yt[1] };
+  return { type: 'link', url };
+}
+
+function renderMedia(url) {
+  const m = detectMedia(url);
+  if (!m) return '';
+  if (m.type === 'image') return `<div class="post-media"><img src="${m.url}" loading="lazy" onclick="openLightbox('${m.url}')" onerror="this.parentElement.style.display='none'"></div>`;
+  if (m.type === 'youtube') return `<div class="post-media"><iframe src="https://www.youtube.com/embed/${m.id}" allowfullscreen></iframe></div>`;
+  return `<div class="post-media"><a href="${m.url}" target="_blank">📎 ${esc(m.url)}</a></div>`;
+}
+
+function timeAgo(ts) {
+  const d = (Date.now()-ts)/1000;
+  if (d<60) return 'только что';
+  if (d<3600) return Math.floor(d/60)+' мин назад';
+  if (d<86400) return Math.floor(d/3600)+' ч назад';
+  return Math.floor(d/86400)+' дн назад';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderFeed() {
+  const feed = document.getElementById('feed');
+  if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов</div>'; return; }
+  const sorted = [...posts].sort((a,b) => b.ts-a.ts);
+  feed.innerHTML = sorted.map(p => {
+    const liked = (p.likedBy||[]).includes(currentUser);
+    const col = avatarColor(p.author);
+    const comments = (p.comments||[]).map(c => `
+      <div class="comment">
+        <div class="avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
+        <div class="comment-body">
+          <div class="comment-author">${esc(c.author)}</div>
+          <div class="comment-text">${esc(c.text)}</div>
+        </div>
+      </div>`).join('');
+    return `
+    <div class="post-card" id="post-${p.id}">
+      <div class="post-header">
+        <div class="avatar" style="background:${col}">${p.author[0].toUpperCase()}</div>
+        <div class="post-meta">
+          <div class="post-author">${esc(p.author)}</div>
+          <div class="post-time">${timeAgo(p.ts)}</div>
+        </div>
+      </div>
+      ${p.text ? `<div class="post-text">${esc(p.text)}</div>` : ''}
+      ${renderMedia(p.media)}
+      <div class="post-footer">
+        <button class="like-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}')">
+          ${liked?'❤️':'🤍'} ${(p.likedBy||[]).length||0}
+        </button>
+        <button class="comment-toggle" onclick="toggleComments('${p.id}')">
+          💬 ${(p.comments||[]).length||0}
+        </button>
+      </div>
+      <div class="comments-section" id="comments-${p.id}">
+        ${comments}
+        <div class="comment-form">
+          <input placeholder="Написать комментарий..." id="cinput-${p.id}" onkeydown="if(event.key==='Enter')addComment('${p.id}')">
+          <button onclick="addComment('${p.id}')">→</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createPost() {
+  const text = document.getElementById('postText').value.trim();
+  const media = uploadedUrl || document.getElementById('mediaUrl').value.trim();
+  if (!text && !media) return;
+  document.getElementById('postBtn').disabled = true;
+  const data = await fetchData();
+  data.posts = [{ id: Date.now().toString(), author: currentUser, text, media, ts: Date.now(), likedBy: [], comments: [] }, ...(data.posts||[])];
+  await saveData(data);
+  document.getElementById('postText').value = '';
+  removeMedia();
+  posts = data.posts;
+  renderFeed();
+  document.getElementById('postBtn').disabled = false;
+}
+
+async function toggleLike(id) {
+  const data = await fetchData();
+  const post = data.posts.find(p=>p.id===id);
+  if (!post) return;
+  post.likedBy = post.likedBy||[];
+  const idx = post.likedBy.indexOf(currentUser);
+  if (idx===-1) post.likedBy.push(currentUser); else post.likedBy.splice(idx,1);
+  await saveData(data);
+  posts = data.posts;
+  renderFeed();
+}
+
+async function addComment(id) {
+  const input = document.getElementById('cinput-'+id);
+  const text = input.value.trim();
+  if (!text) return;
+  const data = await fetchData();
+  const post = data.posts.find(p=>p.id===id);
+  if (!post) return;
+  post.comments = post.comments||[];
+  post.comments.push({ author: currentUser, text, ts: Date.now() });
+  await saveData(data);
+  posts = data.posts;
+  renderFeed();
+  setTimeout(()=>{ const el=document.getElementById('comments-'+id); if(el) el.style.display='block'; },50);
+}
+
+function toggleComments(id) {
+  const el = document.getElementById('comments-'+id);
+  el.style.display = el.style.display==='block' ? 'none' : 'block';
+}
+
+function openLightbox(url) {
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+}
+</script>
+</body>
+</html>
