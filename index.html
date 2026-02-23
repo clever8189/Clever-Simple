@@ -158,7 +158,7 @@ function login() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('userBadge').textContent = name;
   loadPosts();
-  pollInterval = setInterval(loadPosts, 12000);
+  pollInterval = setInterval(loadPosts, 5000);
 }
 
 function logout() {
