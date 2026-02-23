@@ -112,7 +112,7 @@
     </div>
     <div class="post-actions">
       <label class="upload-btn">
-         Фото
+        Фото
         <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(this)">
       </label>
       <div class="spacer"></div>
@@ -135,14 +135,19 @@
 
 <script>
 const SITE_PASSWORD = '1111';
-const BIN_ID = '699b6fefd0ea881f40cff83e';
-const API_KEY = '$2a$10$2TiE8YwNCzdl5uYIOyUZoey8Mk16UP.Vau92QKHeNFlOWvCDO1/km';
+const SUPABASE_URL = 'https://thxoijrdzjylijkgkhev.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoeG9panJkemp5bGlqa2draGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MzI1ODcsImV4cCI6MjA4NzQwODU4N30.CgQfwVniCIQTebqEAG7toh0L--w4OrJ_yULn1sz5OQE';
 const CLOUD_NAME = 'dcat5kxgx';
 const UPLOAD_PRESET = 'ml_default1111';
-const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const API = `${SUPABASE_URL}/rest/v1/posts`;
+const HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
 
 let currentUser = null, posts = [], pollInterval = null, uploadedUrl = null;
-let isSaving = false; // блокировка параллельных запросов
 
 const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e'];
 function avatarColor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
@@ -158,13 +163,13 @@ function login() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('userBadge').textContent = name;
   loadPosts();
-  pollInterval = setInterval(loadPosts, 5000);
+  pollInterval = setInterval(loadPosts, 10000);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       clearInterval(pollInterval);
     } else {
       loadPosts();
-      pollInterval = setInterval(loadPosts, 5000);
+      pollInterval = setInterval(loadPosts, 10000);
     }
   });
 }
@@ -176,48 +181,79 @@ function logout() {
   document.getElementById('passInput').value = '';
 }
 
-async function fetchData() {
-  const r = await fetch(API_URL + '/latest', {
-    headers: { 'X-Master-Key': API_KEY }
-  });
-  if (!r.ok) throw new Error('fetch failed');
-  const j = await r.json();
-  return j.record && Array.isArray(j.record.posts) ? j.record : { posts: [] };
-}
-
-async function saveData(data) {
-  const r = await fetch(API_URL, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-    body: JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error('save failed');
-}
-
-// Атомарное обновление — читаем свежие данные, изменяем, сохраняем
-async function atomicUpdate(updateFn) {
-  if (isSaving) return;
-  isSaving = true;
-  try {
-    const data = await fetchData();
-    updateFn(data);
-    await saveData(data);
-    posts = data.posts;
-    renderFeed();
-  } catch(e) {
-    alert('Ошибка сохранения, попробуй ещё раз');
-  }
-  isSaving = false;
-}
-
 async function loadPosts() {
   try {
-    const data = await fetchData();
-    posts = data.posts || [];
+    const r = await fetch(API + '?order=ts.desc', { headers: HEADERS });
+    if (!r.ok) throw new Error();
+    posts = await r.json();
     renderFeed();
   } catch(e) {
     document.getElementById('feed').innerHTML = '<div class="empty">Ошибка загрузки</div>';
   }
+}
+
+async function createPost() {
+  const text = document.getElementById('postText').value.trim();
+  if (!text && !uploadedUrl) return;
+  const btn = document.getElementById('postBtn');
+  btn.disabled = true;
+  try {
+    const r = await fetch(API, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({
+        id: Date.now().toString(),
+        author: currentUser,
+        text,
+        media: uploadedUrl || '',
+        ts: Date.now(),
+        liked_by: [],
+        comments: []
+      })
+    });
+    if (!r.ok) throw new Error();
+    document.getElementById('postText').value = '';
+    removeMedia();
+    await loadPosts();
+  } catch(e) {
+    alert('Ошибка публикации');
+  }
+  btn.disabled = false;
+}
+
+async function toggleLike(id) {
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  const liked_by = post.liked_by || [];
+  const idx = liked_by.indexOf(currentUser);
+  if (idx === -1) liked_by.push(currentUser);
+  else liked_by.splice(idx, 1);
+  await fetch(`${API}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify({ liked_by })
+  });
+  await loadPosts();
+}
+
+async function addComment(id) {
+  const input = document.getElementById('cinput-' + id);
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  const comments = [...(post.comments || []), { author: currentUser, text, ts: Date.now() }];
+  await fetch(`${API}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify({ comments })
+  });
+  await loadPosts();
+  setTimeout(() => {
+    const el = document.getElementById('comments-' + id);
+    if (el) el.style.display = 'block';
+  }, 50);
 }
 
 async function uploadFile(input) {
@@ -233,12 +269,12 @@ async function uploadFile(input) {
     fd.append('upload_preset', UPLOAD_PRESET);
     const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
     const j = await r.json();
-    if (!j.secure_url) throw new Error('no url');
+    if (!j.secure_url) throw new Error();
     uploadedUrl = j.secure_url;
     document.getElementById('previewImg').src = uploadedUrl;
     document.getElementById('mediaPreview').style.display = 'block';
   } catch(e) {
-    alert('Ошибка загрузки фото, попробуй ещё раз');
+    alert('Ошибка загрузки фото');
   }
   bar.style.display = 'none';
   btn.disabled = false;
@@ -249,56 +285,6 @@ function removeMedia() {
   uploadedUrl = null;
   document.getElementById('previewImg').src = '';
   document.getElementById('mediaPreview').style.display = 'none';
-}
-
-async function createPost() {
-  const text = document.getElementById('postText').value.trim();
-  if (!text && !uploadedUrl) return;
-  const btn = document.getElementById('postBtn');
-  btn.disabled = true;
-  const newPost = {
-    id: Date.now().toString(),
-    author: currentUser,
-    text,
-    media: uploadedUrl || '',
-    ts: Date.now(),
-    likedBy: [],
-    comments: []
-  };
-  await atomicUpdate(data => {
-    data.posts = [newPost, ...(data.posts || [])];
-  });
-  document.getElementById('postText').value = '';
-  removeMedia();
-  btn.disabled = false;
-}
-
-async function toggleLike(id) {
-  await atomicUpdate(data => {
-    const post = data.posts.find(p => p.id === id);
-    if (!post) return;
-    post.likedBy = post.likedBy || [];
-    const idx = post.likedBy.indexOf(currentUser);
-    if (idx === -1) post.likedBy.push(currentUser);
-    else post.likedBy.splice(idx, 1);
-  });
-}
-
-async function addComment(id) {
-  const input = document.getElementById('cinput-' + id);
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  await atomicUpdate(data => {
-    const post = data.posts.find(p => p.id === id);
-    if (!post) return;
-    post.comments = post.comments || [];
-    post.comments.push({ author: currentUser, text, ts: Date.now() });
-  });
-  setTimeout(() => {
-    const el = document.getElementById('comments-' + id);
-    if (el) el.style.display = 'block';
-  }, 50);
 }
 
 function timeAgo(ts) {
@@ -331,8 +317,8 @@ function renderFeed() {
 
   if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов</div>'; return; }
 
-  feed.innerHTML = [...posts].sort((a,b)=>b.ts-a.ts).map(p => {
-    const liked = (p.likedBy||[]).includes(currentUser);
+  feed.innerHTML = posts.map(p => {
+    const liked = (p.liked_by||[]).includes(currentUser);
     const col = avatarColor(p.author);
     const commentsHtml = (p.comments||[]).map(c=>`
       <div class="comment">
@@ -356,7 +342,7 @@ function renderFeed() {
       ${renderMedia(p.media)}
       <div class="post-footer">
         <button class="like-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}')">
-          ${liked?'❤️':'🤍'} ${(p.likedBy||[]).length||0}
+          ${liked?'❤️':'🤍'} ${(p.liked_by||[]).length||0}
         </button>
         <button class="comment-toggle" onclick="toggleComments('${p.id}')">
           💬 ${(p.comments||[]).length||0}
