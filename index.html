@@ -26,15 +26,10 @@
   .username-badge { font-size: 12px; background: #f0f0f0; padding: 4px 9px; border-radius: 20px; }
   .logout-btn { font-size: 12px; color: #aaa; background: none; border: none; cursor: pointer; }
   .logout-btn:hover { color: #222; }
-  .admin-open-btn { font-size: 12px; background: #222; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
-
-  .online-bar { font-size: 12px; color: #aaa; margin-bottom: 12px; }
-  .online-dot { display: inline-block; width: 7px; height: 7px; background: #2ecc71; border-radius: 50%; margin-right: 4px; }
 
   .create-post { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
   .create-post textarea { width: 100%; border: none; outline: none; font-size: 14px; resize: none; font-family: inherit; min-height: 56px; color: #222; }
   .create-post textarea::placeholder { color: #bbb; }
-  .muted-notice { font-size: 13px; color: #e00; padding: 8px 0 4px; }
 
   .media-preview { margin: 8px 0; position: relative; }
   .media-preview img { width: 100%; max-height: 260px; object-fit: cover; border-radius: 8px; display: block; }
@@ -54,19 +49,12 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .feed { display: flex; flex-direction: column; gap: 10px; }
-  .post-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.06); position: relative; }
-  .post-card.pinned { border-left: 3px solid #222; }
-  .pinned-label { font-size: 11px; color: #aaa; margin-bottom: 8px; }
+  .post-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
   .post-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
   .avatar { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-  .post-meta { flex: 1; min-width: 0; }
-  .post-author-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .post-meta { flex: 1; }
   .post-author { font-weight: 600; font-size: 13px; }
-  .grad { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .user-tag { font-size: 10px; padding: 1px 6px; border-radius: 10px; background: #f0f0f0; color: #666; font-weight: 500; }
   .post-time { font-size: 11px; color: #bbb; }
-  .last-seen { font-size: 11px; color: #bbb; }
-  .online-badge { font-size: 10px; color: #2ecc71; font-weight: 500; }
   .post-text { font-size: 14px; line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
   .post-media { margin-bottom: 10px; }
   .post-media img { width: 100%; display: block; max-height: 380px; object-fit: cover; border-radius: 8px; cursor: pointer; }
@@ -77,7 +65,7 @@
   .like-btn.liked { color: #e00; }
 
   .comments-section { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; display: none; }
-  .comment { display: flex; gap: 7px; margin-bottom: 8px; align-items: flex-start; }
+  .comment { display: flex; gap: 7px; margin-bottom: 8px; }
   .comment .avatar { width: 26px; height: 26px; font-size: 11px; }
   .comment-author { font-weight: 600; font-size: 12px; }
   .comment-text { font-size: 13px; color: #444; line-height: 1.4; }
@@ -86,60 +74,12 @@
   .comment-form input:focus { border-color: #222; }
   .comment-form button { padding: 7px 12px; background: #222; color: #fff; border: none; border-radius: 7px; font-size: 12px; cursor: pointer; }
 
-  /* ADMIN PANEL */
-  #adminPanel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 20px 12px; }
-  #adminPanel.open { display: flex; }
-  .admin-box { background: #fff; border-radius: 14px; width: 100%; max-width: 540px; padding: 20px; margin: auto; }
-  .admin-box h2 { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-  .admin-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #aaa; }
-  .admin-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-  .admin-tab { padding: 6px 14px; border: 1.5px solid #e0e0e0; border-radius: 20px; font-size: 13px; cursor: pointer; background: #fff; }
-  .admin-tab.active { background: #222; color: #fff; border-color: #222; }
-  .admin-section { display: none; }
-  .admin-section.active { display: block; }
-
-  .admin-post { background: #f9f9f9; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-  .admin-post-author { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
-  .admin-post-text { font-size: 13px; color: #555; margin-bottom: 8px; white-space: pre-wrap; word-break: break-word; max-height: 60px; overflow: hidden; }
-  .admin-post-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  .abtn { padding: 5px 10px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
-  .abtn-red { background: #fee; color: #c00; }
-  .abtn-red:hover { background: #fcc; }
-  .abtn-blue { background: #e8f0fe; color: #1a56db; }
-  .abtn-blue:hover { background: #c7d7fc; }
-  .abtn-green { background: #e6f9f0; color: #1a7a4a; }
-  .abtn-green:hover { background: #b8f0d4; }
-  .abtn-gray { background: #f0f0f0; color: #555; }
-  .abtn-gray:hover { background: #e0e0e0; }
-
-  .admin-user { background: #f9f9f9; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-  .admin-user-name { font-weight: 600; font-size: 13px; margin-bottom: 8px; }
-  .admin-user-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .admin-input { width: 100%; padding: 7px 9px; border: 1.5px solid #e0e0e0; border-radius: 7px; font-size: 13px; outline: none; margin-bottom: 6px; }
-  .admin-input:focus { border-color: #222; }
-  .color-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
-  .color-row label { font-size: 12px; color: #666; }
-  .color-row input[type=color] { width: 32px; height: 28px; border: none; border-radius: 6px; cursor: pointer; padding: 0; }
-  .color-row input[type=checkbox] { cursor: pointer; }
-
-  .admin-likes-row { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
-  .admin-likes-row input { width: 60px; padding: 5px 8px; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 13px; outline: none; }
-
-  .edit-textarea { width: 100%; padding: 7px 9px; border: 1.5px solid #e0e0e0; border-radius: 7px; font-size: 13px; outline: none; resize: vertical; min-height: 60px; margin-bottom: 6px; font-family: inherit; }
-
-  .comment-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
-  .comment-item:last-child { border-bottom: none; }
-  .comment-item-text { font-size: 12px; color: #444; flex: 1; }
-  .comment-item-author { font-weight: 600; }
-
   .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 1000; align-items: center; justify-content: center; }
   .lightbox.active { display: flex; }
   .lightbox img { max-width: 95vw; max-height: 95vh; border-radius: 6px; object-fit: contain; }
   .lightbox-close { position: absolute; top: 14px; right: 18px; color: #fff; font-size: 28px; cursor: pointer; background: none; border: none; }
 
   .loading, .empty { text-align: center; color: #bbb; padding: 30px; font-size: 14px; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 9px 18px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 2000; white-space: nowrap; }
-  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -160,14 +100,11 @@
     <h1>Clever Simple</h1>
     <div class="header-right">
       <span class="username-badge" id="userBadge"></span>
-      <button class="admin-open-btn" id="adminOpenBtn" style="display:none" onclick="openAdmin()">⚙️ Админ</button>
       <button class="logout-btn" onclick="logout()">Выйти</button>
     </div>
   </div>
 
-  <div class="online-bar" id="onlineBar"></div>
-
-  <div class="create-post" id="createPost">
+  <div class="create-post">
     <textarea id="postText" placeholder="Что нового?"></textarea>
     <div id="mediaPreview" class="media-preview" style="display:none">
       <img id="previewImg" src="">
@@ -191,73 +128,165 @@
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel">
-  <div class="admin-box">
-    <h2>⚙️ Админ-панель <button class="admin-close" onclick="closeAdmin()">×</button></h2>
-    <div class="admin-tabs">
-      <button class="admin-tab active" onclick="adminTab('posts')">Посты</button>
-      <button class="admin-tab" onclick="adminTab('users')">Пользователи</button>
-      <button class="admin-tab" onclick="adminTab('admins')">Админы</button>
-    </div>
-
-    <!-- POSTS -->
-    <div class="admin-section active" id="atab-posts">
-      <div id="adminPostsList"></div>
-    </div>
-
-    <!-- USERS -->
-    <div class="admin-section" id="atab-users">
-      <div id="adminUsersList"></div>
-    </div>
-
-    <!-- ADMINS -->
-    <div class="admin-section" id="atab-admins">
-      <p style="font-size:13px;color:#888;margin-bottom:10px">Введи имя пользователя чтобы выдать или забрать права админа</p>
-      <input class="admin-input" id="adminGrantInput" placeholder="Имя пользователя">
-      <div style="display:flex;gap:8px">
-        <button class="abtn abtn-green" onclick="grantAdmin()">Выдать права</button>
-        <button class="abtn abtn-red" onclick="revokeAdmin()">Забрать права</button>
-      </div>
-      <div id="adminList" style="margin-top:14px;font-size:13px;color:#555"></div>
-    </div>
-  </div>
-</div>
-
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close">×</button>
   <img id="lightboxImg" src="">
 </div>
-<div class="toast" id="toast"></div>
 
 <script>
 const SITE_PASSWORD = '1111';
-const ADMIN_PASSWORD = '1234';
-const SUPER_ADMIN = 'Глеб';
 const SUPABASE_URL = 'https://thxoijrdzjylijkgkhev.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoeG9panJkemp5bGlqa2draGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MzI1ODcsImV4cCI6MjA4NzQwODU4N30.CgQfwVniCIQTebqEAG7toh0L--w4OrJ_yULn1sz5OQE';
 const CLOUD_NAME = 'dcat5kxgx';
 const UPLOAD_PRESET = 'ml_default1111';
-const POSTS_API = `${SUPABASE_URL}/rest/v1/posts`;
-const USERS_API = `${SUPABASE_URL}/rest/v1/users`;
-const H = {
+const API = `${SUPABASE_URL}/rest/v1/posts`;
+const HEADERS = {
   'apikey': SUPABASE_KEY,
   'Authorization': `Bearer ${SUPABASE_KEY}`,
   'Content-Type': 'application/json',
   'Prefer': 'return=representation'
 };
 
-let currentUser = null, posts = [], users = {}, pollInterval = null, uploadedUrl = null, isAdmin = false;
+let currentUser = null, posts = [], pollInterval = null, uploadedUrl = null;
 
-// ── UTILS ──
 const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e'];
 function avatarColor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
+
+function login() {
+  const name = document.getElementById('nameInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  const err = document.getElementById('authError');
+  if (!name) { err.textContent = 'Введи своё имя'; return; }
+  if (pass !== SITE_PASSWORD) { err.textContent = 'Неверный пароль'; return; }
+  currentUser = name;
+  document.getElementById('auth').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('userBadge').textContent = name;
+  loadPosts();
+  pollInterval = setInterval(loadPosts, 10000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(pollInterval);
+    } else {
+      loadPosts();
+      pollInterval = setInterval(loadPosts, 10000);
+    }
+  });
 }
+
+function logout() {
+  currentUser = null; clearInterval(pollInterval);
+  document.getElementById('auth').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('passInput').value = '';
+}
+
+async function loadPosts() {
+  try {
+    const r = await fetch(API + '?order=ts.desc', { headers: HEADERS });
+    if (!r.ok) throw new Error();
+    posts = await r.json();
+    renderFeed();
+  } catch(e) {
+    document.getElementById('feed').innerHTML = '<div class="empty">Ошибка загрузки</div>';
+  }
+}
+
+async function createPost() {
+  const text = document.getElementById('postText').value.trim();
+  if (!text && !uploadedUrl) return;
+  const btn = document.getElementById('postBtn');
+  btn.disabled = true;
+  try {
+    const r = await fetch(API, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({
+        id: Date.now().toString(),
+        author: currentUser,
+        text,
+        media: uploadedUrl || '',
+        ts: Date.now(),
+        liked_by: [],
+        comments: []
+      })
+    });
+    if (!r.ok) throw new Error();
+    document.getElementById('postText').value = '';
+    removeMedia();
+    await loadPosts();
+  } catch(e) {
+    alert('Ошибка публикации');
+  }
+  btn.disabled = false;
+}
+
+async function toggleLike(id) {
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  const liked_by = post.liked_by || [];
+  const idx = liked_by.indexOf(currentUser);
+  if (idx === -1) liked_by.push(currentUser);
+  else liked_by.splice(idx, 1);
+  await fetch(`${API}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify({ liked_by })
+  });
+  await loadPosts();
+}
+
+async function addComment(id) {
+  const input = document.getElementById('cinput-' + id);
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  const comments = [...(post.comments || []), { author: currentUser, text, ts: Date.now() }];
+  await fetch(`${API}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify({ comments })
+  });
+  await loadPosts();
+  setTimeout(() => {
+    const el = document.getElementById('comments-' + id);
+    if (el) el.style.display = 'block';
+  }, 50);
+}
+
+async function uploadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const bar = document.getElementById('uploadingBar');
+  const btn = document.getElementById('postBtn');
+  bar.style.display = 'flex';
+  btn.disabled = true;
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+    const j = await r.json();
+    if (!j.secure_url) throw new Error();
+    uploadedUrl = j.secure_url;
+    document.getElementById('previewImg').src = uploadedUrl;
+    document.getElementById('mediaPreview').style.display = 'block';
+  } catch(e) {
+    alert('Ошибка загрузки фото');
+  }
+  bar.style.display = 'none';
+  btn.disabled = false;
+  input.value = '';
+}
+
+function removeMedia() {
+  uploadedUrl = null;
+  document.getElementById('previewImg').src = '';
+  document.getElementById('mediaPreview').style.display = 'none';
+}
+
 function timeAgo(ts) {
   const d = (Date.now()-ts)/1000;
   if (d<60) return 'только что';
@@ -266,130 +295,15 @@ function timeAgo(ts) {
   return Math.floor(d/86400)+' дн назад';
 }
 
-// ── AUTH ──
-async function login() {
-  const name = document.getElementById('nameInput').value.trim();
-  const pass = document.getElementById('passInput').value;
-  const err = document.getElementById('authError');
-  if (!name) { err.textContent = 'Введи своё имя'; return; }
-  if (pass !== SITE_PASSWORD && pass !== ADMIN_PASSWORD) { err.textContent = 'Неверный пароль'; return; }
-  isAdmin = (pass === ADMIN_PASSWORD) || name === SUPER_ADMIN;
-  currentUser = name;
-  document.getElementById('auth').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('userBadge').textContent = name;
-  if (isAdmin) document.getElementById('adminOpenBtn').style.display = 'inline-block';
-  await upsertUser(name);
-  await loadAll();
-  startPolling();
-  startHeartbeat();
-}
-
-function logout() {
-  currentUser = null; isAdmin = false;
-  clearInterval(pollInterval);
-  document.getElementById('auth').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('passInput').value = '';
-  document.getElementById('adminOpenBtn').style.display = 'none';
-}
-
-// ── HEARTBEAT (онлайн) ──
-function startHeartbeat() {
-  updateLastSeen();
-  setInterval(updateLastSeen, 30000);
-}
-async function updateLastSeen() {
-  await fetch(`${USERS_API}?username=eq.${encodeURIComponent(currentUser)}`, {
-    method: 'PATCH', headers: H,
-    body: JSON.stringify({ last_seen: Date.now() })
-  });
-}
-
-// ── SUPABASE HELPERS ──
-async function upsertUser(name) {
-  const r = await fetch(`${USERS_API}?username=eq.${encodeURIComponent(name)}`, { headers: H });
-  const existing = await r.json();
-  if (!existing.length) {
-    const isSuper = name === SUPER_ADMIN;
-    await fetch(USERS_API, {
-      method: 'POST', headers: H,
-      body: JSON.stringify({ username: name, display_name: name, tag: '', color: '', color2: '', is_admin: isSuper, is_muted: false, last_seen: Date.now() })
-    });
-  }
-}
-
-async function loadUsers() {
-  const r = await fetch(USERS_API, { headers: H });
-  const arr = await r.json();
-  users = {};
-  arr.forEach(u => users[u.username] = u);
-  // check if current user became admin
-  if (users[currentUser] && users[currentUser].is_admin) {
-    isAdmin = true;
-    document.getElementById('adminOpenBtn').style.display = 'inline-block';
-  }
-}
-
-async function loadPosts() {
-  const r = await fetch(POSTS_API + '?order=ts.desc', { headers: H });
-  if (!r.ok) return;
-  posts = await r.json();
-}
-
-async function loadAll() {
-  await Promise.all([loadPosts(), loadUsers()]);
-  renderFeed();
-  renderOnline();
-}
-
-function startPolling() {
-  pollInterval = setInterval(loadAll, 10000);
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) clearInterval(pollInterval);
-    else { loadAll(); pollInterval = setInterval(loadAll, 10000); }
-  });
-}
-
-// ── RENDER ──
-function getNameHtml(username) {
-  const u = users[username];
-  if (!u) return `<span class="post-author">${esc(username)}</span>`;
-  const name = esc(u.display_name || username);
-  let authorHtml;
-  if (u.color && u.color2) {
-    authorHtml = `<span class="post-author grad" style="background:linear-gradient(90deg,${u.color},${u.color2})">${name}</span>`;
-  } else if (u.color) {
-    authorHtml = `<span class="post-author" style="color:${u.color}">${name}</span>`;
-  } else {
-    authorHtml = `<span class="post-author">${name}</span>`;
-  }
-  const tagHtml = u.tag ? `<span class="user-tag">${esc(u.tag)}</span>` : '';
-  return authorHtml + tagHtml;
-}
-
-function getOnlineStatus(username) {
-  const u = users[username];
-  if (!u || !u.last_seen) return '';
-  const diff = (Date.now() - u.last_seen) / 1000;
-  if (diff < 90) return `<span class="online-badge">● в сети</span>`;
-  if (diff < 3600) return `<span class="last-seen">${Math.floor(diff/60)} мин назад</span>`;
-  if (diff < 86400) return `<span class="last-seen">${Math.floor(diff/3600)} ч назад</span>`;
-  return `<span class="last-seen">${Math.floor(diff/86400)} дн назад</span>`;
-}
-
-function renderOnline() {
-  const now = Date.now();
-  const onlineUsers = Object.values(users).filter(u => u.last_seen && (now - u.last_seen) < 90000);
-  const bar = document.getElementById('onlineBar');
-  if (!onlineUsers.length) { bar.innerHTML = ''; return; }
-  bar.innerHTML = `<span class="online-dot"></span> Онлайн: ${onlineUsers.length} — ${onlineUsers.map(u=>esc(u.display_name||u.username)).join(', ')}`;
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function renderMedia(url) {
   if (!url) return '';
-  if (/cloudinary|imgur|\.jpg|\.jpeg|\.png|\.gif|\.webp/i.test(url))
+  if (/cloudinary|imgur|\.jpg|\.jpeg|\.png|\.gif|\.webp/i.test(url)) {
     return `<div class="post-media"><img src="${esc(url)}" loading="lazy" onclick="openLightbox('${esc(url)}')"></div>`;
+  }
   const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
   if (yt) return `<div class="post-media"><iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe></div>`;
   return `<div class="post-media"><a href="${esc(url)}" target="_blank">📎 ${esc(url)}</a></div>`;
@@ -398,49 +312,34 @@ function renderMedia(url) {
 function renderFeed() {
   const feed = document.getElementById('feed');
   const openComments = new Set([...document.querySelectorAll('.comments-section')]
-    .filter(el => el.style.display==='block').map(el => el.id.replace('comments-','')));
-
-  // check muted
-  const me = users[currentUser];
-  const cp = document.getElementById('createPost');
-  if (me && me.is_muted) {
-    cp.innerHTML = '<div class="muted-notice">🔇 Ты замучен администратором и не можешь публиковать посты</div>';
-  }
+    .filter(el => el.style.display === 'block')
+    .map(el => el.id.replace('comments-', '')));
 
   if (!posts.length) { feed.innerHTML = '<div class="empty">Пока нет постов</div>'; return; }
 
-  const pinned = posts.filter(p=>p.pinned);
-  const normal = posts.filter(p=>!p.pinned);
-  const sorted = [...pinned, ...normal];
-
-  feed.innerHTML = sorted.map(p => {
+  feed.innerHTML = posts.map(p => {
     const liked = (p.liked_by||[]).includes(currentUser);
     const col = avatarColor(p.author);
-    const u = users[p.author] || {};
-    const avatarLetter = (u.display_name || p.author)[0].toUpperCase();
-    const commentsHtml = (p.comments||[]).map((c,ci)=>`
+    const commentsHtml = (p.comments||[]).map(c=>`
       <div class="comment">
-        <div class="avatar" style="background:${avatarColor(c.author)}">${((users[c.author]||{}).display_name||c.author)[0].toUpperCase()}</div>
-        <div class="comment-body" style="flex:1">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span class="comment-author">${esc((users[c.author]||{}).display_name||c.author)}</span>
-            ${isAdmin ? `<button onclick="deleteComment('${p.id}',${ci})" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ccc">✕</button>` : ''}
-          </div>
+        <div class="avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
+        <div class="comment-body">
+          <div class="comment-author">${esc(c.author)}</div>
           <div class="comment-text">${esc(c.text)}</div>
         </div>
       </div>`).join('');
+    const commentsOpen = openComments.has(p.id) ? 'block' : 'none';
     return `
-    <div class="post-card${p.pinned?' pinned':''}" id="post-${p.id}">
-      ${p.pinned ? '<div class="pinned-label">📌 Закреплено</div>' : ''}
+    <div class="post-card" id="post-${p.id}">
       <div class="post-header">
-        <div class="avatar" style="background:${col}">${avatarLetter}</div>
+        <div class="avatar" style="background:${col}">${p.author[0].toUpperCase()}</div>
         <div class="post-meta">
-          <div class="post-author-row">${getNameHtml(p.author)} ${getOnlineStatus(p.author)}</div>
+          <div class="post-author">${esc(p.author)}</div>
           <div class="post-time">${timeAgo(p.ts)}</div>
         </div>
       </div>
       ${p.text ? `<div class="post-text">${esc(p.text)}</div>` : ''}
-      ${renderMedia(p.media||'')}
+      ${renderMedia(p.media)}
       <div class="post-footer">
         <button class="like-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}')">
           ${liked?'❤️':'🤍'} ${(p.liked_by||[]).length||0}
@@ -449,7 +348,7 @@ function renderFeed() {
           💬 ${(p.comments||[]).length||0}
         </button>
       </div>
-      <div class="comments-section" id="comments-${p.id}" style="display:${openComments.has(p.id)?'block':'none'}">
+      <div class="comments-section" id="comments-${p.id}" style="display:${commentsOpen}">
         ${commentsHtml}
         <div class="comment-form">
           <input placeholder="Комментарий..." id="cinput-${p.id}" onkeydown="if(event.key==='Enter')addComment('${p.id}')">
@@ -460,262 +359,18 @@ function renderFeed() {
   }).join('');
 }
 
-// ── POST ACTIONS ──
-async function createPost() {
-  const me = users[currentUser];
-  if (me && me.is_muted) { toast('Ты замучен'); return; }
-  const text = document.getElementById('postText').value.trim();
-  if (!text && !uploadedUrl) return;
-  const btn = document.getElementById('postBtn');
-  btn.disabled = true;
-  try {
-    await fetch(POSTS_API, {
-      method: 'POST', headers: H,
-      body: JSON.stringify({ id: Date.now().toString(), author: currentUser, text, media: uploadedUrl||'', ts: Date.now(), liked_by: [], comments: [], pinned: false })
-    });
-    document.getElementById('postText').value = '';
-    removeMedia();
-    await loadAll();
-  } catch(e) { toast('Ошибка публикации'); }
-  btn.disabled = false;
-}
-
-async function toggleLike(id) {
-  const post = posts.find(p=>p.id===id);
-  if (!post) return;
-  const liked_by = [...(post.liked_by||[])];
-  const idx = liked_by.indexOf(currentUser);
-  if (idx===-1) liked_by.push(currentUser); else liked_by.splice(idx,1);
-  await fetch(`${POSTS_API}?id=eq.${id}`, { method:'PATCH', headers:H, body:JSON.stringify({liked_by}) });
-  await loadAll();
-}
-
-async function addComment(id) {
-  const input = document.getElementById('cinput-'+id);
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  const post = posts.find(p=>p.id===id);
-  if (!post) return;
-  const comments = [...(post.comments||[]), {author:currentUser, text, ts:Date.now()}];
-  await fetch(`${POSTS_API}?id=eq.${id}`, { method:'PATCH', headers:H, body:JSON.stringify({comments}) });
-  await loadAll();
-  setTimeout(()=>{ const el=document.getElementById('comments-'+id); if(el) el.style.display='block'; },50);
-}
-
-async function deleteComment(postId, idx) {
-  const post = posts.find(p=>p.id===postId);
-  if (!post) return;
-  const comments = [...(post.comments||[])];
-  comments.splice(idx,1);
-  await fetch(`${POSTS_API}?id=eq.${postId}`, { method:'PATCH', headers:H, body:JSON.stringify({comments}) });
-  await loadAll();
-  toast('Комментарий удалён');
-}
-
-async function uploadFile(input) {
-  const file = input.files[0]; if (!file) return;
-  const bar = document.getElementById('uploadingBar'), btn = document.getElementById('postBtn');
-  bar.style.display = 'flex'; btn.disabled = true;
-  try {
-    const fd = new FormData();
-    fd.append('file', file); fd.append('upload_preset', UPLOAD_PRESET);
-    const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {method:'POST',body:fd});
-    const j = await r.json();
-    if (!j.secure_url) throw new Error();
-    uploadedUrl = j.secure_url;
-    document.getElementById('previewImg').src = uploadedUrl;
-    document.getElementById('mediaPreview').style.display = 'block';
-  } catch(e) { toast('Ошибка загрузки фото'); }
-  bar.style.display = 'none'; btn.disabled = false; input.value = '';
-}
-
-function removeMedia() {
-  uploadedUrl = null;
-  document.getElementById('previewImg').src = '';
-  document.getElementById('mediaPreview').style.display = 'none';
-}
-
 function toggleComments(id) {
   const el = document.getElementById('comments-'+id);
   el.style.display = el.style.display==='block' ? 'none' : 'block';
 }
 
-// ── ADMIN PANEL ──
-function openAdmin() {
-  document.getElementById('adminPanel').classList.add('open');
-  renderAdminPosts();
+function openLightbox(url) {
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('active');
 }
-function closeAdmin() { document.getElementById('adminPanel').classList.remove('open'); }
-
-function adminTab(name) {
-  document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active', ['posts','users','admins'][i]===name));
-  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('atab-'+name).classList.add('active');
-  if (name==='posts') renderAdminPosts();
-  if (name==='users') renderAdminUsers();
-  if (name==='admins') renderAdminList();
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
 }
-
-function renderAdminPosts() {
-  const el = document.getElementById('adminPostsList');
-  if (!posts.length) { el.innerHTML = '<div class="empty">Нет постов</div>'; return; }
-  el.innerHTML = [...posts].sort((a,b)=>b.ts-a.ts).map(p => {
-    const preview = (p.text||'').slice(0,80) + ((p.text||'').length>80?'...':'');
-    return `<div class="admin-post">
-      <div class="admin-post-author">${esc(p.author)} · ${timeAgo(p.ts)}</div>
-      <div class="admin-post-text">${esc(preview) || '📷 фото'}</div>
-      <div class="admin-post-actions">
-        <button class="abtn abtn-red" onclick="adminDeletePost('${p.id}')">🗑 Удалить</button>
-        <button class="abtn abtn-blue" onclick="adminTogglePin('${p.id}',${!!p.pinned})">${p.pinned?'📌 Открепить':'📌 Закрепить'}</button>
-        <button class="abtn abtn-gray" onclick="adminEditPost('${p.id}')">✏️ Редактировать</button>
-      </div>
-      <div id="edit-${p.id}" style="display:none;margin-top:8px">
-        <textarea class="edit-textarea" id="edittext-${p.id}">${esc(p.text||'')}</textarea>
-        <div class="admin-likes-row">
-          <label style="font-size:12px">Лайков:</label>
-          <input type="number" id="editlikes-${p.id}" value="${(p.liked_by||[]).length}" min="0">
-          <button class="abtn abtn-green" onclick="adminSavePost('${p.id}')">Сохранить</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function adminEditPost(id) {
-  const el = document.getElementById('edit-'+id);
-  el.style.display = el.style.display==='none' ? 'block' : 'none';
-}
-
-async function adminSavePost(id) {
-  const post = posts.find(p=>p.id===id);
-  if (!post) return;
-  const text = document.getElementById('edittext-'+id).value;
-  const likesCount = parseInt(document.getElementById('editlikes-'+id).value)||0;
-  const liked_by = [...(post.liked_by||[])];
-  // adjust liked_by array length
-  while (liked_by.length < likesCount) liked_by.push('__fake__'+liked_by.length);
-  while (liked_by.length > likesCount) liked_by.pop();
-  await fetch(`${POSTS_API}?id=eq.${id}`, { method:'PATCH', headers:H, body:JSON.stringify({text, liked_by}) });
-  await loadAll();
-  renderAdminPosts();
-  toast('Пост обновлён');
-}
-
-async function adminDeletePost(id) {
-  await fetch(`${POSTS_API}?id=eq.${id}`, { method:'DELETE', headers:H });
-  await loadAll();
-  renderAdminPosts();
-  toast('Пост удалён');
-}
-
-async function adminTogglePin(id, isPinned) {
-  await fetch(`${POSTS_API}?id=eq.${id}`, { method:'PATCH', headers:H, body:JSON.stringify({pinned:!isPinned}) });
-  await loadAll();
-  renderAdminPosts();
-  toast(isPinned ? 'Пост откреплён' : 'Пост закреплён');
-}
-
-function renderAdminUsers() {
-  const el = document.getElementById('adminUsersList');
-  const list = Object.values(users);
-  if (!list.length) { el.innerHTML = '<div class="empty">Нет пользователей</div>'; return; }
-  el.innerHTML = list.map(u => `
-    <div class="admin-user" id="auser-${u.username}">
-      <div class="admin-user-name">${esc(u.display_name||u.username)} ${u.is_muted?'🔇':''} ${u.is_admin?'👑':''}</div>
-      <div class="admin-user-actions">
-        <button class="abtn ${u.is_muted?'abtn-green':'abtn-red'}" onclick="adminToggleMute('${u.username}',${u.is_muted})">
-          ${u.is_muted?'🔊 Размутить':'🔇 Замутить'}
-        </button>
-        <button class="abtn abtn-gray" onclick="adminToggleUserEdit('${u.username}')">🎨 Стиль</button>
-      </div>
-      <div id="uedit-${u.username}" style="display:none;margin-top:8px">
-        <input class="admin-input" id="udname-${u.username}" placeholder="Отображаемое имя" value="${esc(u.display_name||u.username)}">
-        <input class="admin-input" id="utag-${u.username}" placeholder="Тег (напр. Admin, VIP, 🌟)" value="${esc(u.tag||'')}">
-        <div class="color-row">
-          <label>Цвет ника:</label>
-          <input type="color" id="ucol1-${u.username}" value="${u.color||'#222222'}">
-          <label>Градиент (2й цвет):</label>
-          <input type="color" id="ucol2-${u.username}" value="${u.color2||'#e74c3c'}">
-          <label><input type="checkbox" id="ugrad-${u.username}" ${u.color2?'checked':''}> вкл</label>
-        </div>
-        <button class="abtn abtn-green" onclick="adminSaveUser('${u.username}')">💾 Сохранить</button>
-        <button class="abtn abtn-gray" onclick="adminResetUser('${u.username}')" style="margin-left:4px">Сбросить стиль</button>
-      </div>
-    </div>`).join('');
-}
-
-function adminToggleUserEdit(username) {
-  const el = document.getElementById('uedit-'+username);
-  el.style.display = el.style.display==='none' ? 'block' : 'none';
-}
-
-async function adminToggleMute(username, isMuted) {
-  await fetch(`${USERS_API}?username=eq.${encodeURIComponent(username)}`, {
-    method:'PATCH', headers:H, body:JSON.stringify({is_muted:!isMuted})
-  });
-  await loadUsers();
-  renderAdminUsers();
-  toast(isMuted ? 'Пользователь размучен' : 'Пользователь замучен');
-}
-
-async function adminSaveUser(username) {
-  const dname = document.getElementById('udname-'+username).value.trim();
-  const tag = document.getElementById('utag-'+username).value.trim();
-  const col1 = document.getElementById('ucol1-'+username).value;
-  const grad = document.getElementById('ugrad-'+username).checked;
-  const col2 = grad ? document.getElementById('ucol2-'+username).value : '';
-  await fetch(`${USERS_API}?username=eq.${encodeURIComponent(username)}`, {
-    method:'PATCH', headers:H,
-    body:JSON.stringify({ display_name: dname||username, tag, color: col1, color2: col2 })
-  });
-  await loadAll();
-  renderAdminUsers();
-  toast('Стиль сохранён');
-}
-
-async function adminResetUser(username) {
-  await fetch(`${USERS_API}?username=eq.${encodeURIComponent(username)}`, {
-    method:'PATCH', headers:H,
-    body:JSON.stringify({ display_name: username, tag:'', color:'', color2:'' })
-  });
-  await loadAll();
-  renderAdminUsers();
-  toast('Стиль сброшен');
-}
-
-async function grantAdmin() {
-  const name = document.getElementById('adminGrantInput').value.trim();
-  if (!name) return;
-  await fetch(`${USERS_API}?username=eq.${encodeURIComponent(name)}`, {
-    method:'PATCH', headers:H, body:JSON.stringify({is_admin:true})
-  });
-  await loadUsers();
-  renderAdminList();
-  toast('Права выданы: '+name);
-}
-
-async function revokeAdmin() {
-  const name = document.getElementById('adminGrantInput').value.trim();
-  if (!name || name===SUPER_ADMIN) { toast('Нельзя забрать права у главного админа'); return; }
-  await fetch(`${USERS_API}?username=eq.${encodeURIComponent(name)}`, {
-    method:'PATCH', headers:H, body:JSON.stringify({is_admin:false})
-  });
-  await loadUsers();
-  renderAdminList();
-  toast('Права забраны: '+name);
-}
-
-function renderAdminList() {
-  const admins = Object.values(users).filter(u=>u.is_admin);
-  document.getElementById('adminList').innerHTML = admins.length
-    ? '<b>Текущие админы:</b> ' + admins.map(u=>esc(u.display_name||u.username)).join(', ')
-    : 'Нет других админов';
-}
-
-// ── LIGHTBOX ──
-function openLightbox(url) { document.getElementById('lightboxImg').src=url; document.getElementById('lightbox').classList.add('active'); }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
 </script>
 </body>
 </html>
