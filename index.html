@@ -27,6 +27,19 @@
   .logout-btn { font-size: 12px; color: #aaa; background: none; border: none; cursor: pointer; }
   .logout-btn:hover { color: #222; }
 
+  .online-panel { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .online-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .online-title { font-size: 13px; font-weight: 600; color: #222; display: flex; align-items: center; gap: 6px; }
+  .online-count { font-size: 12px; color: #2ecc71; font-weight: 600; }
+  .online-indicator-pulse { width: 8px; height: 8px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .online-users-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .online-user-chip { display: flex; align-items: center; gap: 5px; background: #f5f5f5; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
+  .online-user-chip .avatar { width: 20px; height: 20px; font-size: 10px; position: relative; }
+  .online-user-chip .online-dot { position: absolute; bottom: -1px; right: -1px; width: 6px; height: 6px; background: #2ecc71; border: 1.5px solid #f5f5f5; border-radius: 50%; }
+  .toggle-list-btn { font-size: 11px; color: #888; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+  .toggle-list-btn:hover { background: #f0f0f0; }
+
   .create-post { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
   .create-post textarea { width: 100%; border: none; outline: none; font-size: 14px; resize: none; font-family: inherit; min-height: 56px; color: #222; }
   .create-post textarea::placeholder { color: #bbb; }
@@ -107,6 +120,18 @@
     </div>
   </div>
 
+  <div class="online-panel">
+    <div class="online-header">
+      <div class="online-title">
+        <div class="online-indicator-pulse"></div>
+        Онлайн
+        <span class="online-count" id="onlineCount">0</span>
+      </div>
+      <button class="toggle-list-btn" id="toggleListBtn" onclick="toggleOnlineList()">Показать</button>
+    </div>
+    <div class="online-users-list" id="onlineUsersList" style="display:none"></div>
+  </div>
+
   <div class="create-post">
     <textarea id="postText" placeholder="Что нового?"></textarea>
     <div id="mediaPreview" class="media-preview" style="display:none">
@@ -152,13 +177,14 @@ const HEADERS = {
 };
 
 let currentUser = null, posts = [], pollInterval = null, uploadedUrl = null;
-let onlineUsers = new Map(); // username -> last_seen timestamp
+let onlineUsers = new Map();
 let heartbeatInterval = null;
+let onlineListVisible = false;
 
 const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e'];
 function avatarColor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
 
-// Функция для обновления статуса "в сети"
+// Функция для обновления статуса "в сети" (работает даже когда вкладка скрыта)
 async function updateOnlineStatus() {
   if (!currentUser) return;
   try {
@@ -184,11 +210,12 @@ async function loadOnlineUsers() {
     onlineUsers.clear();
     const now = Date.now();
     users.forEach(u => {
-      // Считаем пользователя онлайн, если активность была менее 2 минут назад
-      if (now - u.last_seen < 120000) {
+      // Считаем пользователя онлайн, если активность была менее 90 секунд назад
+      if (now - u.last_seen < 90000) {
         onlineUsers.set(u.username, u.last_seen);
       }
     });
+    renderOnlinePanel();
   } catch(e) {
     console.error('Failed to load online users');
   }
@@ -198,7 +225,7 @@ async function loadOnlineUsers() {
 function isUserOnline(username) {
   if (!onlineUsers.has(username)) return false;
   const lastSeen = onlineUsers.get(username);
-  return Date.now() - lastSeen < 120000; // 2 минуты
+  return Date.now() - lastSeen < 90000; // 90 секунд
 }
 
 // Форматирование времени последней активности
@@ -222,6 +249,49 @@ function formatLastSeen(username) {
   return `был(а) ${days} дн назад`;
 }
 
+// Отображение панели онлайн пользователей
+function renderOnlinePanel() {
+  const onlineArray = Array.from(onlineUsers.keys()).filter(u => isUserOnline(u));
+  const count = onlineArray.length;
+  
+  document.getElementById('onlineCount').textContent = count;
+  
+  if (onlineListVisible) {
+    const listEl = document.getElementById('onlineUsersList');
+    if (count === 0) {
+      listEl.innerHTML = '<div style="color:#999; font-size:12px;">Нет пользователей онлайн</div>';
+    } else {
+      listEl.innerHTML = onlineArray.map(username => {
+        const col = avatarColor(username);
+        return `
+          <div class="online-user-chip">
+            <div class="avatar" style="background:${col}">
+              ${username[0].toUpperCase()}
+              <div class="online-dot"></div>
+            </div>
+            <span>${esc(username)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+
+function toggleOnlineList() {
+  onlineListVisible = !onlineListVisible;
+  const listEl = document.getElementById('onlineUsersList');
+  const btnEl = document.getElementById('toggleListBtn');
+  
+  if (onlineListVisible) {
+    listEl.style.display = 'flex';
+    btnEl.textContent = 'Скрыть';
+    renderOnlinePanel();
+  } else {
+    listEl.style.display = 'none';
+    btnEl.textContent = 'Показать';
+  }
+}
+
 function login() {
   const name = document.getElementById('nameInput').value.trim();
   const pass = document.getElementById('passInput').value;
@@ -238,27 +308,23 @@ function login() {
   loadOnlineUsers();
   
   loadPosts();
-  pollInterval = setInterval(() => {
-    loadPosts();
+  
+  // Обновление постов каждые 10 секунд
+  pollInterval = setInterval(loadPosts, 10000);
+  
+  // Отправка heartbeat каждые 15 секунд (более частое обновление)
+  heartbeatInterval = setInterval(() => {
+    updateOnlineStatus();
     loadOnlineUsers();
-  }, 10000);
+  }, 15000);
   
-  // Отправка heartbeat каждые 30 секунд
-  heartbeatInterval = setInterval(updateOnlineStatus, 30000);
-  
+  // Продолжаем отправлять heartbeat даже когда вкладка скрыта
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      clearInterval(pollInterval);
-      clearInterval(heartbeatInterval);
-    } else {
+    if (!document.hidden) {
+      // Когда вкладка снова активна, сразу обновляем данные
       updateOnlineStatus();
       loadOnlineUsers();
       loadPosts();
-      pollInterval = setInterval(() => {
-        loadPosts();
-        loadOnlineUsers();
-      }, 10000);
-      heartbeatInterval = setInterval(updateOnlineStatus, 30000);
     }
   });
   
@@ -272,10 +338,17 @@ function login() {
       navigator.sendBeacon(ONLINE_API, blob);
     }
   });
+  
+  // Обновление при любой активности пользователя
+  ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(event => {
+    document.addEventListener(event, () => {
+      if (currentUser) updateOnlineStatus();
+    }, { passive: true });
+  });
 }
 
 function logout() {
-  updateOnlineStatus(); // Финальное обновление перед выходом
+  updateOnlineStatus();
   currentUser = null; 
   clearInterval(pollInterval);
   clearInterval(heartbeatInterval);
