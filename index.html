@@ -51,9 +51,12 @@
   .feed { display: flex; flex-direction: column; gap: 10px; }
   .post-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
   .post-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .avatar { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; position: relative; }
+  .online-indicator { position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px; background: #2ecc71; border: 2px solid #fff; border-radius: 50%; }
   .post-meta { flex: 1; }
-  .post-author { font-weight: 600; font-size: 13px; }
+  .post-author { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .online-status { font-size: 11px; color: #2ecc71; font-weight: 400; }
+  .offline-status { font-size: 11px; color: #999; font-weight: 400; }
   .post-time { font-size: 11px; color: #bbb; }
   .post-text { font-size: 14px; line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
   .post-media { margin-bottom: 10px; }
@@ -140,6 +143,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const CLOUD_NAME = 'dcat5kxgx';
 const UPLOAD_PRESET = 'ml_default1111';
 const API = `${SUPABASE_URL}/rest/v1/posts`;
+const ONLINE_API = `${SUPABASE_URL}/rest/v1/online_users`;
 const HEADERS = {
   'apikey': SUPABASE_KEY,
   'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -148,9 +152,75 @@ const HEADERS = {
 };
 
 let currentUser = null, posts = [], pollInterval = null, uploadedUrl = null;
+let onlineUsers = new Map(); // username -> last_seen timestamp
+let heartbeatInterval = null;
 
 const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e'];
 function avatarColor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
+
+// Функция для обновления статуса "в сети"
+async function updateOnlineStatus() {
+  if (!currentUser) return;
+  try {
+    await fetch(ONLINE_API, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({
+        username: currentUser,
+        last_seen: Date.now()
+      })
+    });
+  } catch(e) {
+    console.error('Failed to update online status');
+  }
+}
+
+// Функция для загрузки статусов пользователей
+async function loadOnlineUsers() {
+  try {
+    const r = await fetch(ONLINE_API, { headers: HEADERS });
+    if (!r.ok) return;
+    const users = await r.json();
+    onlineUsers.clear();
+    const now = Date.now();
+    users.forEach(u => {
+      // Считаем пользователя онлайн, если активность была менее 2 минут назад
+      if (now - u.last_seen < 120000) {
+        onlineUsers.set(u.username, u.last_seen);
+      }
+    });
+  } catch(e) {
+    console.error('Failed to load online users');
+  }
+}
+
+// Проверка, онлайн ли пользователь
+function isUserOnline(username) {
+  if (!onlineUsers.has(username)) return false;
+  const lastSeen = onlineUsers.get(username);
+  return Date.now() - lastSeen < 120000; // 2 минуты
+}
+
+// Форматирование времени последней активности
+function formatLastSeen(username) {
+  if (isUserOnline(username)) {
+    return 'в сети';
+  }
+  if (!onlineUsers.has(username)) return '';
+  
+  const lastSeen = onlineUsers.get(username);
+  const diff = (Date.now() - lastSeen) / 1000 / 60; // в минутах
+  
+  if (diff < 60) {
+    return `был(а) ${Math.floor(diff)} мин назад`;
+  }
+  const hours = Math.floor(diff / 60);
+  if (hours < 24) {
+    return `был(а) ${hours} ч назад`;
+  }
+  const days = Math.floor(hours / 24);
+  return `был(а) ${days} дн назад`;
+}
 
 function login() {
   const name = document.getElementById('nameInput').value.trim();
@@ -162,20 +232,53 @@ function login() {
   document.getElementById('auth').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('userBadge').textContent = name;
+  
+  // Инициализация онлайн-статуса
+  updateOnlineStatus();
+  loadOnlineUsers();
+  
   loadPosts();
-  pollInterval = setInterval(loadPosts, 10000);
+  pollInterval = setInterval(() => {
+    loadPosts();
+    loadOnlineUsers();
+  }, 10000);
+  
+  // Отправка heartbeat каждые 30 секунд
+  heartbeatInterval = setInterval(updateOnlineStatus, 30000);
+  
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       clearInterval(pollInterval);
+      clearInterval(heartbeatInterval);
     } else {
+      updateOnlineStatus();
+      loadOnlineUsers();
       loadPosts();
-      pollInterval = setInterval(loadPosts, 10000);
+      pollInterval = setInterval(() => {
+        loadPosts();
+        loadOnlineUsers();
+      }, 10000);
+      heartbeatInterval = setInterval(updateOnlineStatus, 30000);
+    }
+  });
+  
+  // Обновление статуса при закрытии страницы
+  window.addEventListener('beforeunload', () => {
+    if (navigator.sendBeacon) {
+      const blob = new Blob([JSON.stringify({
+        username: currentUser,
+        last_seen: Date.now()
+      })], { type: 'application/json' });
+      navigator.sendBeacon(ONLINE_API, blob);
     }
   });
 }
 
 function logout() {
-  currentUser = null; clearInterval(pollInterval);
+  updateOnlineStatus(); // Финальное обновление перед выходом
+  currentUser = null; 
+  clearInterval(pollInterval);
+  clearInterval(heartbeatInterval);
   document.getElementById('auth').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('passInput').value = '';
@@ -320,21 +423,37 @@ function renderFeed() {
   feed.innerHTML = posts.map(p => {
     const liked = (p.liked_by||[]).includes(currentUser);
     const col = avatarColor(p.author);
-    const commentsHtml = (p.comments||[]).map(c=>`
+    const isOnline = isUserOnline(p.author);
+    const lastSeen = formatLastSeen(p.author);
+    
+    const commentsHtml = (p.comments||[]).map(c=>{
+      const commentOnline = isUserOnline(c.author);
+      return `
       <div class="comment">
-        <div class="avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
+        <div class="avatar" style="background:${avatarColor(c.author)}">
+          ${c.author[0].toUpperCase()}
+          ${commentOnline ? '<div class="online-indicator"></div>' : ''}
+        </div>
         <div class="comment-body">
           <div class="comment-author">${esc(c.author)}</div>
           <div class="comment-text">${esc(c.text)}</div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
+    
     const commentsOpen = openComments.has(p.id) ? 'block' : 'none';
     return `
     <div class="post-card" id="post-${p.id}">
       <div class="post-header">
-        <div class="avatar" style="background:${col}">${p.author[0].toUpperCase()}</div>
+        <div class="avatar" style="background:${col}">
+          ${p.author[0].toUpperCase()}
+          ${isOnline ? '<div class="online-indicator"></div>' : ''}
+        </div>
         <div class="post-meta">
-          <div class="post-author">${esc(p.author)}</div>
+          <div class="post-author">
+            ${esc(p.author)}
+            ${lastSeen ? `<span class="${isOnline ? 'online-status' : 'offline-status'}">${lastSeen}</span>` : ''}
+          </div>
           <div class="post-time">${timeAgo(p.ts)}</div>
         </div>
       </div>
