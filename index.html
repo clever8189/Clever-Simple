@@ -6,123 +6,325 @@
 <title>Clever Simple</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #222; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f2f2f7; color: #1c1c1e; }
 
-  #auth { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #fff; }
-  .auth-box { width: 300px; text-align: center; }
-  .auth-box h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .auth-box p { color: #aaa; font-size: 13px; margin-bottom: 24px; }
-  .auth-box input { width: 100%; padding: 10px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
-  .auth-box input:focus { border-color: #222; }
-  .auth-box button { width: 100%; padding: 10px; background: #222; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
-  .auth-box button:hover { background: #444; }
-  .auth-error { color: #e00; font-size: 12px; margin-top: 6px; min-height: 16px; }
+  /* ===== AUTH ===== */
+  #screen-auth {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff;
+  }
+  .auth-box { width: 300px; }
+  .auth-box h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .auth-box p { color: #8e8e93; font-size: 13px; margin-bottom: 22px; }
+  .auth-box input {
+    width: 100%; padding: 10px 12px;
+    border: 1.5px solid #e5e5ea; border-radius: 10px;
+    font-size: 14px; margin-bottom: 8px; outline: none;
+    background: #f9f9f9;
+  }
+  .auth-box input:focus { border-color: #007aff; background: #fff; }
+  .auth-box button {
+    width: 100%; padding: 10px;
+    background: #007aff; color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .auth-box button:hover { background: #0066d6; }
+  .auth-error { color: #ff3b30; font-size: 12px; margin-top: 6px; min-height: 16px; }
 
-  #app { display: none; max-width: 560px; margin: 0 auto; padding: 16px 12px 60px; }
+  /* ===== MAIN APP ===== */
+  #screen-app {
+    display: none;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 12px 60px;
+  }
 
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .header h1 { font-size: 18px; font-weight: 700; }
+  /* ===== HEADER ===== */
+  .header {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0 12px;
+    background: rgba(242,242,247,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e5e5ea;
+    margin-bottom: 14px;
+  }
+  .header h1 { font-size: 17px; font-weight: 700; }
   .header-right { display: flex; align-items: center; gap: 8px; }
-  .username-badge { font-size: 12px; background: #f0f0f0; padding: 4px 9px; border-radius: 20px; }
-  .logout-btn { font-size: 12px; color: #aaa; background: none; border: none; cursor: pointer; }
-  .logout-btn:hover { color: #222; }
+  .header-profile-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 10px 5px 5px;
+    background: #fff; border: 1px solid #e5e5ea;
+    border-radius: 20px; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: #1c1c1e;
+  }
+  .header-profile-btn:hover { background: #f2f2f7; }
+  .header-profile-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    color: #fff; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logout-btn {
+    font-size: 12px; color: #8e8e93;
+    background: none; border: none; cursor: pointer; padding: 4px;
+  }
+  .logout-btn:hover { color: #1c1c1e; }
 
-  .create-post { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-  .create-post textarea { width: 100%; border: none; outline: none; font-size: 14px; resize: none; font-family: inherit; min-height: 56px; color: #222; }
-  .create-post textarea::placeholder { color: #bbb; }
-
-  .media-preview { margin: 8px 0; position: relative; }
-  .media-preview img { width: 100%; max-height: 260px; object-fit: cover; border-radius: 8px; display: block; }
-  .remove-media { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.45); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
-
-  .post-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-  .upload-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: #f5f5f5; border: none; border-radius: 7px; font-size: 13px; cursor: pointer; color: #555; }
-  .upload-btn:hover { background: #eee; }
+  /* ===== CREATE POST ===== */
+  .create-post {
+    background: #fff; border-radius: 12px;
+    padding: 12px; margin-bottom: 12px;
+    border: 1px solid #e5e5ea;
+  }
+  .create-post-row { display: flex; gap: 9px; align-items: flex-start; }
+  .create-post-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .create-post textarea {
+    flex: 1; border: none; outline: none;
+    font-size: 14px; resize: none;
+    font-family: inherit; min-height: 52px;
+    color: #1c1c1e; background: transparent;
+    line-height: 1.5;
+  }
+  .create-post textarea::placeholder { color: #c7c7cc; }
+  .post-actions {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid #f2f2f7;
+  }
+  .upload-btn {
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px 11px;
+    background: #f2f2f7; border: none; border-radius: 8px;
+    font-size: 13px; cursor: pointer; color: #555;
+    font-family: inherit;
+  }
+  .upload-btn:hover { background: #e5e5ea; }
   .upload-btn input { display: none; }
   .spacer { flex: 1; }
-  .post-btn { padding: 6px 16px; background: #222; color: #fff; border: none; border-radius: 7px; font-size: 13px; cursor: pointer; }
-  .post-btn:hover { background: #444; }
-  .post-btn:disabled { background: #bbb; cursor: not-allowed; }
-
-  .uploading-bar { margin-top: 6px; font-size: 12px; color: #888; display: none; align-items: center; gap: 6px; }
-  .spinner { width: 12px; height: 12px; border: 2px solid #ddd; border-top-color: #222; border-radius: 50%; animation: spin .6s linear infinite; }
+  .post-btn {
+    padding: 6px 16px;
+    background: #007aff; color: #fff;
+    border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .post-btn:hover { background: #0066d6; }
+  .post-btn:disabled { background: #c7c7cc; cursor: not-allowed; }
+  .media-preview { margin: 8px 0; position: relative; }
+  .media-preview img { width: 100%; max-height: 240px; object-fit: cover; border-radius: 8px; }
+  .remove-media {
+    position: absolute; top: 6px; right: 6px;
+    background: rgba(0,0,0,.45); color: #fff;
+    border: none; border-radius: 50%;
+    width: 24px; height: 24px; cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .uploading-bar { font-size: 12px; color: #8e8e93; margin-top: 6px; display: none; align-items: center; gap: 6px; }
+  .spinner { width: 11px; height: 11px; border: 2px solid #e5e5ea; border-top-color: #007aff; border-radius: 50%; animation: spin .6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ===== FEED ===== */
   .feed { display: flex; flex-direction: column; gap: 10px; }
-  .post-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-  .post-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .avatar { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; position: relative; }
-  .online-indicator { position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px; background: #2ecc71; border: 2px solid #fff; border-radius: 50%; }
+  .post-card {
+    background: #fff; border-radius: 12px; padding: 14px;
+    border: 1px solid #e5e5ea;
+  }
+  .post-header { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative;
+  }
+  .online-dot {
+    position: absolute; bottom: 0; right: 0;
+    width: 10px; height: 10px;
+    background: #34c759; border: 2px solid #fff; border-radius: 50%;
+  }
   .post-meta { flex: 1; }
-  .post-author { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-  .online-status { font-size: 11px; color: #2ecc71; font-weight: 400; }
-  .offline-status { font-size: 11px; color: #999; font-weight: 400; }
-  .post-time { font-size: 11px; color: #bbb; }
-  .post-text { font-size: 14px; line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
+  .post-author { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .prefix-tag {
+    font-size: 11px; font-weight: 600;
+    padding: 1px 6px; border-radius: 5px;
+    background: #f2f2f7; color: #636366;
+  }
+  .online-status { font-size: 11px; color: #34c759; font-weight: 400; }
+  .offline-status { font-size: 11px; color: #8e8e93; font-weight: 400; }
+  .post-time { font-size: 11px; color: #c7c7cc; margin-top: 1px; }
+  .post-text { font-size: 14px; line-height: 1.55; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; color: #1c1c1e; }
   .post-media { margin-bottom: 10px; }
   .post-media img { width: 100%; display: block; max-height: 380px; object-fit: cover; border-radius: 8px; cursor: pointer; }
-  .post-media iframe { width: 100%; height: 280px; border: none; border-radius: 8px; }
-  .post-footer { display: flex; align-items: center; gap: 10px; }
-  .like-btn, .comment-toggle { display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; font-size: 13px; color: #aaa; padding: 3px 7px; border-radius: 7px; }
-  .like-btn:hover, .comment-toggle:hover { background: #f5f5f5; color: #666; }
-  .like-btn.liked { color: #e00; }
-
-  .comments-section { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; display: none; }
-  .comment { display: flex; gap: 7px; margin-bottom: 8px; }
-  .comment .avatar { width: 26px; height: 26px; font-size: 11px; }
-  .comment-author { font-weight: 600; font-size: 12px; }
-  .comment-text { font-size: 13px; color: #444; line-height: 1.4; }
+  .post-media iframe { width: 100%; height: 260px; border: none; border-radius: 8px; }
+  .post-footer { display: flex; align-items: center; gap: 6px; }
+  .like-btn, .comment-toggle {
+    display: flex; align-items: center; gap: 4px;
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; color: #8e8e93;
+    padding: 4px 8px; border-radius: 8px; font-family: inherit;
+  }
+  .like-btn:hover, .comment-toggle:hover { background: #f2f2f7; color: #1c1c1e; }
+  .like-btn.liked { color: #ff3b30; }
+  .comments-section { margin-top: 10px; border-top: 1px solid #f2f2f7; padding-top: 10px; display: none; }
+  .comment { display: flex; gap: 7px; margin-bottom: 9px; }
+  .comment .avatar { width: 26px; height: 26px; font-size: 10px; }
+  .comment-author { font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .comment-text { font-size: 13px; color: #3c3c43; line-height: 1.4; margin-top: 1px; }
   .comment-form { display: flex; gap: 6px; margin-top: 6px; }
-  .comment-form input { flex: 1; padding: 7px 9px; border: 1.5px solid #e0e0e0; border-radius: 7px; font-size: 13px; outline: none; }
-  .comment-form input:focus { border-color: #222; }
-  .comment-form button { padding: 7px 12px; background: #222; color: #fff; border: none; border-radius: 7px; font-size: 12px; cursor: pointer; }
+  .comment-form input {
+    flex: 1; padding: 7px 10px;
+    border: 1.5px solid #e5e5ea; border-radius: 8px;
+    font-size: 13px; outline: none; font-family: inherit;
+    background: #f9f9f9;
+  }
+  .comment-form input:focus { border-color: #007aff; background: #fff; }
+  .comment-form button {
+    padding: 7px 12px; background: #007aff; color: #fff;
+    border: none; border-radius: 8px; font-size: 12px; cursor: pointer;
+  }
 
-  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 1000; align-items: center; justify-content: center; }
+  /* ===== PROFILE OVERLAY ===== */
+  #screen-profile {
+    position: fixed; inset: 0; z-index: 100;
+    display: none;
+    background: rgba(0,0,0,0.35);
+    align-items: flex-end;
+    justify-content: center;
+  }
+  #screen-profile.open { display: flex; }
+  .profile-sheet {
+    width: 100%; max-width: 560px;
+    background: #fff;
+    border-radius: 18px 18px 0 0;
+    padding: 20px 20px 36px;
+  }
+  .profile-sheet-handle {
+    width: 36px; height: 4px;
+    background: #e5e5ea; border-radius: 2px;
+    margin: 0 auto 18px;
+  }
+  .profile-sheet h2 { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+  .profile-section-label {
+    font-size: 12px; font-weight: 600; color: #8e8e93;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 7px;
+  }
+  .profile-input {
+    width: 100%; padding: 10px 12px;
+    border: 1.5px solid #e5e5ea; border-radius: 10px;
+    font-size: 14px; outline: none; font-family: inherit;
+    background: #f9f9f9; margin-bottom: 14px;
+  }
+  .profile-input:focus { border-color: #007aff; background: #fff; }
+  .profile-prefix-row {
+    display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px;
+  }
+  .prefix-option {
+    padding: 5px 12px;
+    border: 1.5px solid #e5e5ea; border-radius: 20px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    color: #3c3c43; background: #fff;
+    transition: border-color 0.15s;
+  }
+  .prefix-option:hover { border-color: #007aff; color: #007aff; }
+  .prefix-option.selected { border-color: #007aff; color: #007aff; background: #e8f2ff; }
+  .prefix-custom-row { display: flex; gap: 7px; margin-bottom: 18px; }
+  .prefix-custom-row input {
+    flex: 1; padding: 9px 12px;
+    border: 1.5px solid #e5e5ea; border-radius: 10px;
+    font-size: 13px; outline: none; font-family: inherit;
+    background: #f9f9f9;
+  }
+  .prefix-custom-row input:focus { border-color: #007aff; background: #fff; }
+  .profile-preview {
+    background: #f9f9f9; border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 16px;
+    font-size: 13px; color: #636366;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .profile-preview .prev-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .profile-preview .prev-name { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .profile-save-btn {
+    width: 100%; padding: 11px;
+    background: #007aff; color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .profile-save-btn:hover { background: #0066d6; }
+  .profile-close-btn {
+    position: absolute; top: 14px; right: 16px;
+    font-size: 22px; background: none; border: none;
+    cursor: pointer; color: #8e8e93; line-height: 1;
+  }
+
+  /* ===== LIGHTBOX ===== */
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 300; align-items: center; justify-content: center; }
   .lightbox.active { display: flex; }
   .lightbox img { max-width: 95vw; max-height: 95vh; border-radius: 6px; object-fit: contain; }
   .lightbox-close { position: absolute; top: 14px; right: 18px; color: #fff; font-size: 28px; cursor: pointer; background: none; border: none; }
 
-  .loading, .empty { text-align: center; color: #bbb; padding: 30px; font-size: 14px; }
+  .loading, .empty { text-align: center; color: #c7c7cc; padding: 30px; font-size: 14px; }
 </style>
 </head>
 <body>
 
-<div id="auth">
+<!-- ===== AUTH ===== -->
+<div id="screen-auth">
   <div class="auth-box">
     <h1>Clever Simple</h1>
-    <p></p>
-    <input type="text" id="nameInput" placeholder="Твоё имя" maxlength="20">
-    <input type="password" id="passInput" placeholder="Пароль">
+    <p>Войди, чтобы продолжить</p>
+    <input type="text" id="nameInput" placeholder="Твоё имя" maxlength="20"
+      onkeydown="if(event.key==='Enter')document.getElementById('passInput').focus()">
+    <input type="password" id="passInput" placeholder="Пароль"
+      onkeydown="if(event.key==='Enter')login()">
     <button onclick="login()">Войти</button>
     <div class="auth-error" id="authError"></div>
   </div>
 </div>
 
-<div id="app">
+<!-- ===== MAIN APP ===== -->
+<div id="screen-app">
   <div class="header">
     <h1>Clever Simple</h1>
     <div class="header-right">
-      <span class="username-badge" id="userBadge"></span>
+      <button class="header-profile-btn" onclick="openProfile()">
+        <div class="header-profile-avatar" id="headerAvatar"></div>
+        <span id="headerName"></span>
+      </button>
       <button class="logout-btn" onclick="logout()">Выйти</button>
     </div>
   </div>
 
   <div class="create-post">
-    <textarea id="postText" placeholder="Что нового?"></textarea>
+    <div class="create-post-row">
+      <div class="create-post-avatar" id="createAvatar"></div>
+      <textarea id="postText" placeholder="Что нового?"></textarea>
+    </div>
     <div id="mediaPreview" class="media-preview" style="display:none">
       <img id="previewImg" src="">
       <button class="remove-media" onclick="removeMedia()">×</button>
     </div>
     <div class="post-actions">
       <label class="upload-btn">
-        Фото
+        📷 Фото
         <input type="file" id="fileInput" accept="image/*" onchange="uploadFile(this)">
       </label>
       <div class="spacer"></div>
       <button class="post-btn" id="postBtn" onclick="createPost()">Отправить</button>
     </div>
     <div class="uploading-bar" id="uploadingBar">
-      <div class="spinner"></div> Загружаем фото...
+      <div class="spinner"></div> Загружаем...
     </div>
   </div>
 
@@ -131,6 +333,47 @@
   </div>
 </div>
 
+<!-- ===== PROFILE SHEET ===== -->
+<div id="screen-profile" onclick="profileBgClick(event)">
+  <div class="profile-sheet" style="position:relative">
+    <div class="profile-sheet-handle"></div>
+    <button class="profile-close-btn" onclick="closeProfile()">×</button>
+    <h2>Профиль</h2>
+
+    <div class="profile-section-label">Имя</div>
+    <input class="profile-input" id="profileName" placeholder="Твоё имя" maxlength="20"
+      oninput="updateProfilePreview()">
+
+    <div class="profile-section-label">Префикс</div>
+    <div class="profile-prefix-row" id="prefixOptions">
+      <div class="prefix-option" onclick="selectPrefix('')">Нет</div>
+      <div class="prefix-option" onclick="selectPrefix('Мерседес')">Мерседес</div>
+      <div class="prefix-option" onclick="selectPrefix('Стул')">Стул</div>
+      <div class="prefix-option" onclick="selectPrefix('Кээсер')">Кээсер</div>
+      <div class="prefix-option" onclick="selectPrefix('Макан')">Макан</div>
+      <div class="prefix-option" onclick="selectPrefix('Шаман')">Шаман</div>
+      <div class="prefix-option" onclick="selectPrefix('Казах')">Казах</div>
+      <div class="prefix-option" onclick="selectPrefix('БМВ')">БМВ</div>
+    </div>
+    <div class="prefix-custom-row">
+      <input id="prefixCustom" placeholder="Или напиши свой..." maxlength="20"
+        oninput="selectPrefix(this.value); updateProfilePreview()">
+    </div>
+
+    <div class="profile-section-label">Предпросмотр</div>
+    <div class="profile-preview">
+      <div class="prev-avatar" id="prevAvatar"></div>
+      <div>
+        <div class="prev-name" id="prevName"></div>
+        <div style="font-size:11px;color:#c7c7cc;margin-top:2px">в сети</div>
+      </div>
+    </div>
+
+    <button class="profile-save-btn" onclick="saveProfile()">Сохранить</button>
+  </div>
+</div>
+
+<!-- ===== LIGHTBOX ===== -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close">×</button>
   <img id="lightboxImg" src="">
@@ -151,171 +394,175 @@ const HEADERS = {
   'Prefer': 'return=representation'
 };
 
-let currentUser = null, posts = [], pollInterval = null, uploadedUrl = null;
-let onlineUsers = new Map();
+let currentUser = null;
+let currentPrefix = '';
+let posts = [];
+let pollInterval = null;
 let heartbeatInterval = null;
+let uploadedUrl = null;
+let onlineUsers = new Map();
+let selectedPrefix = '';
 
 const colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e'];
 function avatarColor(n) { let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
 
-// Функция для обновления статуса "в сети"
-async function updateOnlineStatus() {
-  if (!currentUser) return;
-  try {
-    // Используем upsert для создания или обновления записи
-    const response = await fetch(`${ONLINE_API}?username=eq.${encodeURIComponent(currentUser)}`, {
-      method: 'GET',
-      headers: HEADERS
-    });
-    
-    const existing = await response.json();
-    
-    if (existing && existing.length > 0) {
-      // Обновляем существующую запись
-      await fetch(`${ONLINE_API}?username=eq.${encodeURIComponent(currentUser)}`, {
-        method: 'PATCH',
-        headers: HEADERS,
-        body: JSON.stringify({
-          last_seen: Date.now()
-        })
-      });
-    } else {
-      // Создаем новую запись
-      await fetch(ONLINE_API, {
-        method: 'POST',
-        headers: HEADERS,
-        body: JSON.stringify({
-          username: currentUser,
-          last_seen: Date.now()
-        })
-      });
-    }
-    console.log('Status updated for:', currentUser);
-  } catch(e) {
-    console.error('Failed to update online status:', e);
-  }
-}
-
-// Функция для загрузки статусов пользователей
-async function loadOnlineUsers() {
-  try {
-    const r = await fetch(ONLINE_API, { headers: HEADERS });
-    if (!r.ok) {
-      console.error('Failed to load online users, status:', r.status);
-      return;
-    }
-    const users = await r.json();
-    console.log('Loaded users:', users);
-    onlineUsers.clear();
-    const now = Date.now();
-    users.forEach(u => {
-      // Считаем пользователя онлайн, если активность была менее 90 секунд назад
-      onlineUsers.set(u.username, u.last_seen);
-    });
-    console.log('Online users map:', onlineUsers);
-    renderFeed(); // Перерисовываем ленту для обновления статусов
-  } catch(e) {
-    console.error('Failed to load online users:', e);
-  }
-}
-
-// Проверка, онлайн ли пользователь
-function isUserOnline(username) {
-  if (!onlineUsers.has(username)) return false;
-  const lastSeen = onlineUsers.get(username);
-  const isOnline = Date.now() - lastSeen < 90000; // 90 секунд
-  return isOnline;
-}
-
-// Форматирование времени последней активности
-function formatLastSeen(username) {
-  if (isUserOnline(username)) {
-    return 'в сети';
-  }
-  if (!onlineUsers.has(username)) return '';
-  
-  const lastSeen = onlineUsers.get(username);
-  const diff = (Date.now() - lastSeen) / 1000 / 60; // в минутах
-  
-  if (diff < 60) {
-    const mins = Math.floor(diff);
-    return `был(а) ${mins} мин назад`;
-  }
-  const hours = Math.floor(diff / 60);
-  if (hours < 24) {
-    return `был(а) ${hours} ч назад`;
-  }
-  const days = Math.floor(hours / 24);
-  return `был(а) ${days} дн назад`;
-}
-
+// ===== AUTH =====
 function login() {
   const name = document.getElementById('nameInput').value.trim();
   const pass = document.getElementById('passInput').value;
   const err = document.getElementById('authError');
   if (!name) { err.textContent = 'Введи своё имя'; return; }
   if (pass !== SITE_PASSWORD) { err.textContent = 'Неверный пароль'; return; }
+
   currentUser = name;
-  document.getElementById('auth').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('userBadge').textContent = name;
-  
-  // Инициализация онлайн-статуса
+  currentPrefix = localStorage.getItem('prefix_' + name) || '';
+
+  document.getElementById('screen-auth').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'block';
+
+  updateHeaderUI();
   updateOnlineStatus();
   loadOnlineUsers();
-  
   loadPosts();
-  
-  // Обновление постов каждые 10 секунд
-  pollInterval = setInterval(() => {
-    loadPosts();
-  }, 10000);
-  
-  // Отправка heartbeat каждые 15 секунд
-  heartbeatInterval = setInterval(() => {
-    updateOnlineStatus();
-    loadOnlineUsers();
-  }, 15000);
-  
-  // Продолжаем отправлять heartbeat даже когда вкладка скрыта
+
+  pollInterval = setInterval(loadPosts, 10000);
+  heartbeatInterval = setInterval(() => { updateOnlineStatus(); loadOnlineUsers(); }, 15000);
+
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      updateOnlineStatus();
-      loadOnlineUsers();
-      loadPosts();
-    }
+    if (!document.hidden) { updateOnlineStatus(); loadOnlineUsers(); loadPosts(); }
   });
-  
-  // Обновление статуса при закрытии страницы
-  window.addEventListener('beforeunload', () => {
-    if (navigator.sendBeacon && currentUser) {
-      const data = JSON.stringify({
-        username: currentUser,
-        last_seen: Date.now()
-      });
-      navigator.sendBeacon(`${ONLINE_API}?username=eq.${encodeURIComponent(currentUser)}`, 
-        new Blob([data], { type: 'application/json' }));
-    }
-  });
-  
-  // Обновление при любой активности пользователя
-  ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(event => {
-    document.addEventListener(event, () => {
-      if (currentUser) updateOnlineStatus();
-    }, { passive: true });
+
+  ['mousedown','keydown','scroll','touchstart'].forEach(ev => {
+    document.addEventListener(ev, () => { if (currentUser) updateOnlineStatus(); }, { passive: true });
   });
 }
 
 function logout() {
-  updateOnlineStatus();
-  currentUser = null; 
+  currentUser = null;
   clearInterval(pollInterval);
   clearInterval(heartbeatInterval);
-  document.getElementById('auth').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
+  document.getElementById('screen-auth').style.display = 'flex';
+  document.getElementById('screen-app').style.display = 'none';
   document.getElementById('passInput').value = '';
+  document.getElementById('authError').textContent = '';
 }
 
+function updateHeaderUI() {
+  const col = avatarColor(currentUser);
+  const av = document.getElementById('headerAvatar');
+  av.textContent = currentUser[0].toUpperCase();
+  av.style.background = col;
+  document.getElementById('headerName').textContent = currentUser;
+
+  const ca = document.getElementById('createAvatar');
+  ca.textContent = currentUser[0].toUpperCase();
+  ca.style.background = col;
+}
+
+// ===== PROFILE =====
+function openProfile() {
+  selectedPrefix = currentPrefix;
+  document.getElementById('profileName').value = currentUser;
+  document.getElementById('prefixCustom').value = '';
+  // Подсветить выбранный вариант
+  document.querySelectorAll('.prefix-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.val === selectedPrefix || el.textContent === selectedPrefix || (selectedPrefix === '' && el.textContent === 'Нет'));
+  });
+  updateProfilePreview();
+  document.getElementById('screen-profile').classList.add('open');
+}
+
+function closeProfile() {
+  document.getElementById('screen-profile').classList.remove('open');
+}
+
+function profileBgClick(e) {
+  if (e.target === document.getElementById('screen-profile')) closeProfile();
+}
+
+function selectPrefix(val) {
+  selectedPrefix = val;
+  document.querySelectorAll('.prefix-option').forEach(el => {
+    const isNone = el.textContent === 'Нет' && val === '';
+    const isMatch = el.textContent === val;
+    el.classList.toggle('selected', isNone || isMatch);
+  });
+  if (val !== document.getElementById('prefixCustom').value) {
+    // Только если выбрали кнопку — чистим кастомный инпут
+    const presets = ['', 'Мерседес','Стул','Кээсер','Макан','Шаман','Казах','БМВ'];
+    if (presets.includes(val)) document.getElementById('prefixCustom').value = '';
+  }
+  updateProfilePreview();
+}
+
+function updateProfilePreview() {
+  const name = document.getElementById('profileName').value.trim() || currentUser;
+  const prefix = selectedPrefix;
+  const col = avatarColor(name);
+  const av = document.getElementById('prevAvatar');
+  av.textContent = name[0] ? name[0].toUpperCase() : '?';
+  av.style.background = col;
+  const pn = document.getElementById('prevName');
+  pn.innerHTML = esc(name) + (prefix ? ` <span class="prefix-tag">${esc(prefix)}</span>` : '');
+}
+
+function saveProfile() {
+  const newName = document.getElementById('profileName').value.trim();
+  if (!newName) return;
+  currentUser = newName;
+  currentPrefix = selectedPrefix;
+  localStorage.setItem('prefix_' + currentUser, currentPrefix);
+  updateHeaderUI();
+  closeProfile();
+  renderFeed();
+}
+
+// ===== ONLINE =====
+async function updateOnlineStatus() {
+  if (!currentUser) return;
+  try {
+    const r = await fetch(`${ONLINE_API}?username=eq.${encodeURIComponent(currentUser)}`, { headers: HEADERS });
+    const existing = await r.json();
+    if (existing && existing.length > 0) {
+      await fetch(`${ONLINE_API}?username=eq.${encodeURIComponent(currentUser)}`, {
+        method: 'PATCH', headers: HEADERS,
+        body: JSON.stringify({ last_seen: Date.now() })
+      });
+    } else {
+      await fetch(ONLINE_API, {
+        method: 'POST', headers: HEADERS,
+        body: JSON.stringify({ username: currentUser, last_seen: Date.now() })
+      });
+    }
+  } catch(e) {}
+}
+
+async function loadOnlineUsers() {
+  try {
+    const r = await fetch(ONLINE_API, { headers: HEADERS });
+    if (!r.ok) return;
+    const users = await r.json();
+    onlineUsers.clear();
+    users.forEach(u => onlineUsers.set(u.username, u.last_seen));
+    renderFeed();
+  } catch(e) {}
+}
+
+function isUserOnline(username) {
+  return onlineUsers.has(username) && Date.now() - onlineUsers.get(username) < 90000;
+}
+
+function formatLastSeen(username) {
+  if (isUserOnline(username)) return 'в сети';
+  if (!onlineUsers.has(username)) return '';
+  const diff = (Date.now() - onlineUsers.get(username)) / 60000;
+  if (diff < 60) return `был(а) ${Math.floor(diff)} мин назад`;
+  const h = Math.floor(diff / 60);
+  if (h < 24) return `был(а) ${h} ч назад`;
+  return `был(а) ${Math.floor(h/24)} дн назад`;
+}
+
+// ===== POSTS =====
 async function loadPosts() {
   try {
     const r = await fetch(API + '?order=ts.desc', { headers: HEADERS });
@@ -333,39 +580,31 @@ async function createPost() {
   const btn = document.getElementById('postBtn');
   btn.disabled = true;
   try {
-    const r = await fetch(API, {
-      method: 'POST',
-      headers: HEADERS,
+    await fetch(API, {
+      method: 'POST', headers: HEADERS,
       body: JSON.stringify({
         id: Date.now().toString(),
         author: currentUser,
-        text,
-        media: uploadedUrl || '',
-        ts: Date.now(),
-        liked_by: [],
-        comments: []
+        prefix: currentPrefix,
+        text, media: uploadedUrl || '',
+        ts: Date.now(), liked_by: [], comments: []
       })
     });
-    if (!r.ok) throw new Error();
     document.getElementById('postText').value = '';
     removeMedia();
     await loadPosts();
-  } catch(e) {
-    alert('Ошибка публикации');
-  }
+  } catch(e) { alert('Ошибка публикации'); }
   btn.disabled = false;
 }
 
 async function toggleLike(id) {
   const post = posts.find(p => p.id === id);
   if (!post) return;
-  const liked_by = post.liked_by || [];
+  const liked_by = [...(post.liked_by || [])];
   const idx = liked_by.indexOf(currentUser);
-  if (idx === -1) liked_by.push(currentUser);
-  else liked_by.splice(idx, 1);
+  if (idx === -1) liked_by.push(currentUser); else liked_by.splice(idx, 1);
   await fetch(`${API}?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: HEADERS,
+    method: 'PATCH', headers: HEADERS,
     body: JSON.stringify({ liked_by })
   });
   await loadPosts();
@@ -378,10 +617,9 @@ async function addComment(id) {
   input.value = '';
   const post = posts.find(p => p.id === id);
   if (!post) return;
-  const comments = [...(post.comments || []), { author: currentUser, text, ts: Date.now() }];
+  const comments = [...(post.comments || []), { author: currentUser, prefix: currentPrefix, text, ts: Date.now() }];
   await fetch(`${API}?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: HEADERS,
+    method: 'PATCH', headers: HEADERS,
     body: JSON.stringify({ comments })
   });
   await loadPosts();
@@ -394,10 +632,8 @@ async function addComment(id) {
 async function uploadFile(input) {
   const file = input.files[0];
   if (!file) return;
-  const bar = document.getElementById('uploadingBar');
-  const btn = document.getElementById('postBtn');
-  bar.style.display = 'flex';
-  btn.disabled = true;
+  document.getElementById('uploadingBar').style.display = 'flex';
+  document.getElementById('postBtn').disabled = true;
   try {
     const fd = new FormData();
     fd.append('file', file);
@@ -408,11 +644,9 @@ async function uploadFile(input) {
     uploadedUrl = j.secure_url;
     document.getElementById('previewImg').src = uploadedUrl;
     document.getElementById('mediaPreview').style.display = 'block';
-  } catch(e) {
-    alert('Ошибка загрузки фото');
-  }
-  bar.style.display = 'none';
-  btn.disabled = false;
+  } catch(e) { alert('Ошибка загрузки фото'); }
+  document.getElementById('uploadingBar').style.display = 'none';
+  document.getElementById('postBtn').disabled = false;
   input.value = '';
 }
 
@@ -422,6 +656,7 @@ function removeMedia() {
   document.getElementById('mediaPreview').style.display = 'none';
 }
 
+// ===== RENDER =====
 function timeAgo(ts) {
   const d = (Date.now()-ts)/1000;
   if (d<60) return 'только что';
@@ -436,9 +671,8 @@ function esc(s) {
 
 function renderMedia(url) {
   if (!url) return '';
-  if (/cloudinary|imgur|\.jpg|\.jpeg|\.png|\.gif|\.webp/i.test(url)) {
+  if (/cloudinary|imgur|\.jpg|\.jpeg|\.png|\.gif|\.webp/i.test(url))
     return `<div class="post-media"><img src="${esc(url)}" loading="lazy" onclick="openLightbox('${esc(url)}')"></div>`;
-  }
   const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
   if (yt) return `<div class="post-media"><iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe></div>`;
   return `<div class="post-media"><a href="${esc(url)}" target="_blank">📎 ${esc(url)}</a></div>`;
@@ -457,38 +691,42 @@ function renderFeed() {
     const col = avatarColor(p.author);
     const isOnline = isUserOnline(p.author);
     const lastSeen = formatLastSeen(p.author);
-    
-    const commentsHtml = (p.comments||[]).map(c=>{
-      const commentOnline = isUserOnline(c.author);
-      const commentLastSeen = formatLastSeen(c.author);
+    const prefix = p.prefix || '';
+    const commentsOpen = openComments.has(p.id) ? 'block' : 'none';
+
+    const commentsHtml = (p.comments||[]).map(c => {
+      const cOnline = isUserOnline(c.author);
+      const cSeen = formatLastSeen(c.author);
+      const cPrefix = c.prefix || '';
       return `
       <div class="comment">
         <div class="avatar" style="background:${avatarColor(c.author)}">
           ${c.author[0].toUpperCase()}
-          ${commentOnline ? '<div class="online-indicator"></div>' : ''}
+          ${cOnline ? '<div class="online-dot"></div>' : ''}
         </div>
-        <div class="comment-body">
+        <div>
           <div class="comment-author">
             ${esc(c.author)}
-            ${commentLastSeen ? `<span style="font-size:10px;color:${commentOnline ? '#2ecc71' : '#999'};font-weight:400;margin-left:4px;">${commentLastSeen}</span>` : ''}
+            ${cPrefix ? `<span class="prefix-tag">${esc(cPrefix)}</span>` : ''}
+            ${cSeen ? `<span style="font-size:10px;color:${cOnline?'#34c759':'#8e8e93'};font-weight:400">${cSeen}</span>` : ''}
           </div>
           <div class="comment-text">${esc(c.text)}</div>
         </div>
       </div>`;
     }).join('');
-    
-    const commentsOpen = openComments.has(p.id) ? 'block' : 'none';
+
     return `
     <div class="post-card" id="post-${p.id}">
       <div class="post-header">
         <div class="avatar" style="background:${col}">
           ${p.author[0].toUpperCase()}
-          ${isOnline ? '<div class="online-indicator"></div>' : ''}
+          ${isOnline ? '<div class="online-dot"></div>' : ''}
         </div>
         <div class="post-meta">
           <div class="post-author">
             ${esc(p.author)}
-            ${lastSeen ? `<span class="${isOnline ? 'online-status' : 'offline-status'}">${lastSeen}</span>` : ''}
+            ${prefix ? `<span class="prefix-tag">${esc(prefix)}</span>` : ''}
+            ${lastSeen ? `<span class="${isOnline?'online-status':'offline-status'}">${lastSeen}</span>` : ''}
           </div>
           <div class="post-time">${timeAgo(p.ts)}</div>
         </div>
@@ -497,16 +735,17 @@ function renderFeed() {
       ${renderMedia(p.media)}
       <div class="post-footer">
         <button class="like-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}')">
-          ${liked?'❤️':'🤍'} ${(p.liked_by||[]).length||0}
+          ${liked?'❤️':'🤍'} ${(p.liked_by||[]).length}
         </button>
         <button class="comment-toggle" onclick="toggleComments('${p.id}')">
-          💬 ${(p.comments||[]).length||0}
+          💬 ${(p.comments||[]).length}
         </button>
       </div>
       <div class="comments-section" id="comments-${p.id}" style="display:${commentsOpen}">
         ${commentsHtml}
         <div class="comment-form">
-          <input placeholder="Комментарий..." id="cinput-${p.id}" onkeydown="if(event.key==='Enter')addComment('${p.id}')">
+          <input placeholder="Комментарий..." id="cinput-${p.id}"
+            onkeydown="if(event.key==='Enter')addComment('${p.id}')">
           <button onclick="addComment('${p.id}')">→</button>
         </div>
       </div>
